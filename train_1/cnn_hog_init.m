@@ -22,7 +22,7 @@ conv3 = dagnn.Conv('size', [3 3 64 31], 'pad', 1, 'stride', 1, 'hasBias', true) 
 net.addLayer('conv3', conv3, {'pool2'}, {'conv3'}, {'filters3', 'biases3'}) ;
 net.addLayer('relu3', dagnn.ReLU(), {'conv3'}, {'conv3x'});
 
-net.addLayer('lossl1', dagnn.LossL1(), {'conv3x','hog'}, 'l1_loss');
+net.addLayer('lossl1', dagnn.LossL1(), {'conv3x','hog'}, 'objective');
 
 % Meta parameters
 net.meta.inputSize = [256 256 3] ;

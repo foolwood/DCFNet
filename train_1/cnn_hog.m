@@ -1,6 +1,5 @@
 function [net, info] = cnn_hog(varargin)
 %CNN_HOG  Demonstrates CNN Expression
-
 run('vl_setupnn.m') ;
 
 opts.network = [] ;
@@ -12,7 +11,7 @@ sfx = [opts.networkType, opts.feature];
 opts.expDir = fullfile('../data', ['DeepKCF-baseline-' sfx]) ;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
-opts.dataDir = fullfile('../data', 'coco') ;
+opts.dataDir = fullfile('../data', 'test') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 
@@ -22,7 +21,7 @@ if ispc()
 else
     trainOpts.gpus = [];
 end
-trainOpts.learningRate = 1e-3;
+trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 50;
 trainOpts.batchSize = 50;
@@ -80,27 +79,27 @@ function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 
 if opts.numGpus > 0
-    images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',32,...
+    images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',5,...
         'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
     images = images{1};
     
-    hog = zeros(64,64,32,numel(images),'single');
-    for i = 1:numel(images)
+    hog = zeros(64,64,32,size(images,4),'single');
+    for i = 1:size(images,4)
         hog(1:64,1:64,1:32,i) = fhog(images(:,:,:,i), 4, 9);
     end
-    hog(1:64,1:64,32,:) = [];
+    hog(:,:,32,:) = [];
     images = gpuArray(images);
     hog = gpuArray(hog);
 else
     images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',32,...
         'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
     images = images{1};
-    hog = zeros(64,64,32,numel(images),'single');
+    hog = zeros(64,64,32,size(images,4),'single');
     
-    for i = 1:numel(images)
+    for i = 1:size(images,4)
         hog(1:64,1:64,1:32,i) = fhog(images(:,:,:,i), 4, 9);
     end
-    hog(1:64,1:64,32,:) = [];
+    hog(:,:,32,:) = [];
 end
 
 inputs = {'image', images, 'hog', hog} ;
@@ -109,8 +108,8 @@ end
 % --------------------------------------------------------------------
 function imdb = getHogImdb(opts)
 % --------------------------------------------------------------------
-datapath = dir(fullfile(opts.dataDir,'train2014/*.jpg'));
-datapath = fullfile(opts.dataDir,'train2014',{datapath.name});
+datapath = dir(fullfile(opts.dataDir,'*.JPEG'));
+datapath = fullfile(opts.dataDir,{datapath.name});
 
 dataMean = [123.6800,116.7790 ,103.9390];
 dataMean = reshape(dataMean,1,1,[]);
