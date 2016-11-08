@@ -24,7 +24,7 @@ end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 50;
-trainOpts.batchSize = 50;
+trainOpts.batchSize = 2;
 opts.train = trainOpts;
 
 opts = vl_argparse(opts, varargin) ;
@@ -89,7 +89,7 @@ if opts.numGpus > 0
     end
     hog(:,:,32,:) = [];
     images = gpuArray(images);
-    hog = gpuArray(hog*100);
+    hog = gpuArray(hog*1000);
 else
     images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',32,...
         'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
@@ -100,7 +100,7 @@ else
         hog(1:64,1:64,1:32,i) = fhog(images(:,:,:,i), 4, 9);
     end
     hog(:,:,32,:) = [];
-    hog = hog*100;
+    hog = hog*1000;
 end
 
 inputs = {'image', images, 'hog', hog} ;

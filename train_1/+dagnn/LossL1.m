@@ -20,7 +20,7 @@ classdef LossL1 < dagnn.Loss
       absDelta = abs(delta) ;
 
       % 
-      outputs{1} = sum(absDelta(:))/numel(inputs{1}) ;
+      outputs{1} = sum(absDelta(:))/size(inputs{1},4) ;
 
       % Accumulate loss statistics.
       n = obj.numAveraged ;

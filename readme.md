@@ -24,6 +24,15 @@ nweights  = [1, 0.5, 0.02]; % Weights for combining correlation filter responses
 ## Train
 
 ### Experiment1 （hog）
+实验做的有一定的问题，简单是vgg前三层学习起来总会产生0输出，非常奇怪。
+
+
+
+今天搜索到了这个文章，里面非常厉害的直接用CNN生成HOG。帮我省去了大烦恼，其实自己也应该学着写的。这样。网络模型的初始模型就有了。
+
+网络是个浅层网络，这也验证了，我们可以使用一个浅层的网络来进行跟踪。没必要上十几层的VGG之类的。并且，假设CNN-HOG是一个局部最优解，那么我们可以使用数据灌溉到更优解。希望顺着这个思路能有收货。
+
+Understanding Deep Image Representations by Inverting Them
 
 
 
