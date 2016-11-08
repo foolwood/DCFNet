@@ -89,7 +89,7 @@ if opts.numGpus > 0
     end
     hog(:,:,32,:) = [];
     images = gpuArray(images);
-    hog = gpuArray(hog);
+    hog = gpuArray(hog*100);
 else
     images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',32,...
         'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
@@ -100,6 +100,7 @@ else
         hog(1:64,1:64,1:32,i) = fhog(images(:,:,:,i), 4, 9);
     end
     hog(:,:,32,:) = [];
+    hog = hog*100;
 end
 
 inputs = {'image', images, 'hog', hog} ;
@@ -114,8 +115,8 @@ datapath = fullfile(opts.dataDir,{datapath.name});
 dataMean = [123.6800,116.7790 ,103.9390];
 dataMean = reshape(dataMean,1,1,[]);
 
-set = [ones(1,round(numel(datapath)*0.8)),...
-    2*ones(1,round(numel(datapath)*0.2))];
+set = [ones(1,round(numel(datapath)*0.9)),...
+    2*ones(1,numel(datapath)-round(numel(datapath)*0.9))];
 
 imdb.images.datapath = datapath ;
 imdb.images.data_mean = dataMean;
