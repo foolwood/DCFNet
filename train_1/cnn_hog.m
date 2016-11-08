@@ -11,7 +11,7 @@ sfx = [opts.networkType, opts.feature];
 opts.expDir = fullfile('../data', ['DeepKCF-baseline-' sfx]) ;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
-opts.dataDir = fullfile('../data', 'test') ;
+opts.dataDir = fullfile('../data', 'coco','train2014') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 
 
@@ -108,14 +108,14 @@ end
 % --------------------------------------------------------------------
 function imdb = getHogImdb(opts)
 % --------------------------------------------------------------------
-datapath = dir(fullfile(opts.dataDir,'*.JPEG'));
+datapath = dir(fullfile(opts.dataDir,'*.jpg'));
 datapath = fullfile(opts.dataDir,{datapath.name});
 
 dataMean = [123.6800,116.7790 ,103.9390];
 dataMean = reshape(dataMean,1,1,[]);
 
-set = [ones(1,numel(datapath)*0.8),...
-    2*ones(1,numel(datapath)*0.2)];
+set = [ones(1,round(numel(datapath)*0.8)),...
+    2*ones(1,round(numel(datapath)*0.2))];
 
 imdb.images.datapath = datapath ;
 imdb.images.data_mean = dataMean;

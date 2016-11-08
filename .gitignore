@@ -5,3 +5,6 @@
 *.JPEG
 *.xltd
 data/train2014.zip.xltd.cfg
+*.jpg
+*.zip
+*.jpg
