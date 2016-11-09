@@ -36,5 +36,12 @@ Understanding Deep Image Representations by Inverting Them
 
 
 
+### Experiment2 （dcf layer）
+继续把MOSSE的文章的推倒，加上KCF的框架仔细看了看。现在的初步计划是使用DCF。
+理由1，DCF使用的是线性核，速度会比高斯核快很多。
+理由2，性能上并不比高斯核的弱很多(差一个百分比的样子，这样一来，我们有理由相信，Kernel trick只是一个trick，真正好使的还是特征，也对，你只有一个初始目标，这样的内积空间能映射的有多好)
+先从dcf layer开始写起。
+
+
 
 
