@@ -5,8 +5,8 @@ classdef DCF < dagnn.Filter
 %   QiangWang, 2016
 % -------------------------------------------------------------------------------------------------------------------------
     properties
-        target_size = [0,0,0,0];
-        sigma = 0;
+        target_size = [3,3];
+        sigma = 1;
         yf = [];
         lambda = 1e-4;
         alphaf = [];
@@ -37,7 +37,7 @@ classdef DCF < dagnn.Filter
             assert(numel(derOutputs) == 1, 'only one gradient should be flowing in this layer (dldy)');
            
             dldy = derOutputs{1};
-            assert(cdl==1);
+            
             dldyf = fft2(dldy);
             dldkf = dldyf.*obj.alphaf;
             dldzf = conj(dldkf.*obj.xf);
