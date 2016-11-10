@@ -1,60 +1,56 @@
-classdef DCF < dagnn.Layer
+classdef DCF < dagnn.Filter
 %DCF  layer
 %   Dual Correlation Filter(DCF) two activations of same size exploiting  the API of vl_nnconv
 %
 %   QiangWang, 2016
 % -------------------------------------------------------------------------------------------------------------------------
     properties
-        opts = {'cuDNN'}
-        yf = fft2(gaussian_shaped_labels(1, [227,227]));
+        target_size = [0,0,0,0];
+        sigma = 0;
+        yf = [];
+        lambda = 1e-4;
+        alphaf = [];
+        xf = [];
     end
 
     methods
         function outputs = forward(obj, inputs, params)
             assert(numel(inputs) == 2, 'two inputs are needed');
 
-            z = inputs{1}; % target
-            x = inputs{2}; % search region
+            x = inputs{1}; % target region
+            z = inputs{2}; % search region
 
             assert(ndims(z) == ndims(x), 'z and x have different number of dimensions');
             assert(size(z,1) == size(x,1), 'z and x have different size');
             
             zf = fft2(z);
-            xf = fft2(x);
-            kf = sum(zf .* conj(zf), 3) / numel(zf);
-            alphaf = obj.yf ./ (kf + lambda); 
-            kzf = sum(xf .* conj(zf), 3) / numel(xf);
-            outputs{1} = real(ifft2(alphaf .* kzf));
+            obj.xf = fft2(x);
+            kxxf = sum(obj.xf .* conj(obj.xf), 3) / numel(obj.xf(:,:,:,1));
+            obj.alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
+            kzf = sum( zf.* conj(obj.xf), 3) / numel(obj.xf(:,:,:,1));
+            outputs{1} = real(ifft2(obj.alphaf .* kzf));
 
         end
 
         function [derInputs, derParams] = backward(obj, inputs, params, derOutputs)
             assert(numel(inputs) == 2, 'two inputs are needed');
             assert(numel(derOutputs) == 1, 'only one gradient should be flowing in this layer (dldy)');
-            z = inputs{1}; % exemplar
-            x = inputs{2}; % instance
-            assert(size(z,1) < size(x,1), 'exemplar z has to be smaller than instance x');
-            [wx,hx,cx,bx] = size(x);
-            x = reshape(x, [wx,hx,cx*bx,1]);
+           
             dldy = derOutputs{1};
-            [wdl,hdl,cdl,bdl] = size(dldy);
             assert(cdl==1);
-            dldy = reshape(dldy, [wdl,hdl,cdl*bdl,1]);
-            [dldx, dldz, ~] = vl_nnconv(x, z, [], dldy);
-            [mx,nx,cb,one] = size(dldx);
-            assert(mx == size(x, 1));
-            assert(nx == size(x, 2));
-            assert(cb == cx * bx);
-            assert(one == 1);
+            dldyf = fft2(dldy);
+            dldkf = dldyf.*obj.alphaf;
+            dldzf = conj(dldkf.*obj.xf);
+            dldz = real(ifft2(dldzf));
+            dldx = [];
             derInputs{1} = dldz;
-            derInputs{2} = reshape(dldx, [mx,nx,cx,bx]);
+            derInputs{2} = dldx;
             derParams = {};
         end
 
         function outputSizes = getOutputSizes(obj, inputSizes)
             z_sz = inputSizes{1};
-            x_sz = inputSizes{2};
-            y_sz = [x_sz(1:2) - z_sz(1:2) + 1, 1, z_sz(4)];
+            y_sz = [z_sz(1:2), 1, z_sz(4)];
             outputSizes = {y_sz};
         end
 
@@ -69,6 +65,9 @@ classdef DCF < dagnn.Layer
 
         function obj = DCF(varargin)
             obj.load(varargin);
+            obj.target_size = obj.target_size;
+            obj.sigma = obj.sigma ;
+            obj.yf = fft2(gaussian_shaped_labels(obj.sigma, obj.target_size));
         end
 
     end
@@ -111,3 +110,18 @@ assert(labels(1,1) == 1)
 
 end
 
+
+
+function test()
+x = rand(16,16,16,16);
+z = x;
+yf = repmat(fft2(gaussian_shaped_labels(1, [16,16])),[1,1,1,16]);
+lambda = 1e-4;
+
+zf = fft2(z);
+xf = fft2(x);
+kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
+alphaf = yf ./ (kxxf + lambda);
+kzf = sum(xf .* conj(zf), 3) / numel(xf(:,:,:,1));
+responses = real(ifft2(alphaf .* kzf));
+end
