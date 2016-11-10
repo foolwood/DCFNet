@@ -1,9 +1,10 @@
 function net = cnn_dcf_init(varargin)
 % input:
-%       -target :125*125*3
-%       -search :125*125*3
+%       -target :125*125*3*n
+%       -search :125*125*3*n
+%       -delta_xy :n*2
 % output:
-%       -response :125*125*1*1(test)
+%       -response :125*125*1*n(test)
 rng('default');
 rng(0) ;
 
@@ -71,13 +72,15 @@ net.addLayer('relu3_3s', dagnn.ReLU(), {'conv3_3s'}, {'conv3_3sx'});
 window_sz = [125,125];
 target_sz = [50,50];
 sigma = sqrt(prod(target_sz))/10;
-DCF = dagnn.DCF('target_size', window_sz,'sigma',sigma) ;
+DCF = dagnn.DCF('win_size', window_sz,'sigma',sigma) ;
 net.addLayer('DCF', DCF, {'conv3_3x','conv3_3sx'}, {'response'}) ;
 
+delta2response = dagnn.delta2response('win_size', window_sz,'sigma',sigma) ;
+net.addLayer('delta2response', delta2response, {'delta_xy'}, {'idea_response'}) ;
 
 net.addLayer('objective', ...
     dagnn.Loss('loss', 'logistic'), ...
-    {'response', 'eltwise_label'}, 'objective');
+    {'response', 'idea_response'}, 'objective');
    
 
 % Fill in defaul values

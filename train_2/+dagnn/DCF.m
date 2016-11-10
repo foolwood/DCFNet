@@ -5,7 +5,7 @@ classdef DCF < dagnn.Filter
 %   QiangWang, 2016
 % -------------------------------------------------------------------------------------------------------------------------
     properties
-        target_size = [3,3];
+        win_size = [3,3];
         sigma = 1;
         yf = [];
         lambda = 1e-4;
@@ -65,9 +65,9 @@ classdef DCF < dagnn.Filter
 
         function obj = DCF(varargin)
             obj.load(varargin);
-            obj.target_size = obj.target_size;
+            obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-            obj.yf = fft2(gaussian_shaped_labels(obj.sigma, obj.target_size));
+            obj.yf = fft2(gaussian_shaped_labels(obj.sigma, obj.win_size));
         end
 
     end
