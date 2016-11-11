@@ -45,7 +45,7 @@ for v = 1:numel(videos)
     [img_files, ground_truth_4xy] = load_video_info_vot(vot16_dataDir, video);
     bbox_gt = get_bbox(ground_truth_4xy);
     
-    pos_gt = round([(bbox_gt(:,2)+bbox_gt(:,4)),(bbox_gt(:,1)+bbox_gt(:,3))]/2);
+    pos_gt = round([(bbox_gt(:,2)+bbox_gt(:,4)),(bbox_gt(:,1)+bbox_gt(:,3))]/2)+1;
     sz_gt = round([(bbox_gt(:,4)-bbox_gt(:,2)),(bbox_gt(:,3)-bbox_gt(:,1))]);
     
     for frame = 1:(numel(img_files)-1)

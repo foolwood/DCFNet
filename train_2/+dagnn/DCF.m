@@ -9,8 +9,6 @@ classdef DCF < dagnn.Filter
         sigma = 1;
         yf = [];
         lambda = 1e-4;
-        alphaf = [];
-        xf = [];
     end
 
     methods
@@ -24,11 +22,12 @@ classdef DCF < dagnn.Filter
             assert(size(z,1) == size(x,1), 'z and x have different size');
             
             zf = fft2(z);
-            obj.xf = fft2(x);
-            kxxf = sum(obj.xf .* conj(obj.xf), 3) / numel(obj.xf(:,:,:,1));
-            obj.alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
-            kzf = sum( zf.* conj(obj.xf), 3) / numel(obj.xf(:,:,:,1));
-            outputs{1} = real(ifft2(obj.alphaf .* kzf));
+            xf = fft2(x);
+            
+            kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
+            alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
+            kzf = sum( zf.* conj(xf), 3) / numel(obj.xf(:,:,:,1));
+            outputs{1} = real(ifft2(alphaf .* kzf));
 
         end
 
@@ -38,9 +37,15 @@ classdef DCF < dagnn.Filter
            
             dldr = derOutputs{1};
             
+            x = inputs{1}; % target region
+            xf = fft2(x);
+            
+            kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
+            alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
+            
             dldrf = fft2(dldr);
-            dldkf = dldrf.*obj.alphaf;
-            dldzf = bsxfun(@times,dldkf,conj(obj.xf))/ numel(obj.xf(:,:,:,1));
+            dldkf = dldrf.*alphaf;
+            dldzf = bsxfun(@times,dldkf,conj(xf))/ numel(xf(:,:,:,1));
             dldz = real(ifft2(dldzf));
             dldx = [];
             derInputs{1} = dldx;

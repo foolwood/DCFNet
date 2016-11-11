@@ -37,7 +37,7 @@ if exist(opts.imdbPath, 'file')
   imdb = load(opts.imdbPath) ;
 else
   imdb = getVOTImdb(opts) ;
-  mkdir(opts.expDir) ;
+  if ~exist(opts.expDir,'dir'),mkdir(opts.expDir);end
   save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
 end
 
@@ -66,7 +66,7 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-
+batch = 1;
 if opts.numGpus > 0
     target = gpuArray(bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean));
     search = gpuArray(bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean));
