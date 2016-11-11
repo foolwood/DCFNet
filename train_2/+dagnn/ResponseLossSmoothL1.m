@@ -10,7 +10,7 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
 %
 %  where f is the function :
 %
-%              { 0.1,       if |delta| < 15,
+%              { 0,         if |delta| < 15,
 %   f(delta) = {
 %              { 1,         otherwise.
 %
@@ -22,7 +22,7 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
     properties
         win_size = [3,3];
         sigma = 1;
-        threshold = 0.1;
+        threshold = 0.01;
         ny = [];
         nf = [];
     end
@@ -40,11 +40,11 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             r_idea = obj.ny(:,:,delta_yx_ind);
             
             f = obj.nf(:,:,delta_yx_ind);
-            loss = max(r - r_idea,0).*max(r - r_idea,0).*f;
+            loss = max(r - 0.1,0).*f;
             
-%             subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
-%             subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
-%             drawnow
+            subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
+            subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
+            drawnow
 
 %             outputs{1} = reshape(loss,obj.win_size(1),obj.win_size(2),1,[]);
             
@@ -62,13 +62,13 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             r = squeeze(inputs{1}); % r
             
             delta_yx = inputs{2}; % delta_xy
-            delta_x = mod(delta_yx(:,2),obj.win_size(1))+1;% 1-index
-            delta_y = mod(delta_yx(:,1),obj.win_size(2))+1;% 1-index
+            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
+            delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
             
             delta_xy_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,delta_xy_ind);
             
-            delta = (max(r - r_idea,0)).*obj.nf(:,:,delta_xy_ind) ;
+            delta = -(max(r - r_idea,0)).*obj.nf(:,:,delta_xy_ind) ;
             
             derInputs = {reshape(delta,obj.win_size(1),obj.win_size(2),1,[])...
                 .* derOutputs{1}, []} ;
@@ -84,7 +84,7 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             obj.nf = zeros([obj.win_size,obj.win_size],'single');
             
             y_ = single(gaussian_shaped_labels(obj.sigma, obj.win_size));
-            f_ = single(1 - 0.9* (y_ > obj.threshold));
+            f_ = single(1 - 1* (y_ > obj.threshold));
             
             for i = 1:obj.win_size(1)
                 for j = 1:obj.win_size(2)
