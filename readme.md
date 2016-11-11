@@ -73,9 +73,64 @@ respone>(0.1*max(respone(:) ) )
 只有采取l1还是别的差值，这个只能做实验看了。
 
 
+Spectral Representations for Convolutional Neural Networks
+这篇文章有讲一下如何对频域的求导，这样的解答也让我对运算产生了信心。
 
+下面进一步推导整个过程
+##### Forward
 
+1.x -> F(x)		R[h,w,c,n]->C[h,w,c,n]
 
+```
+xf = fft2(x);
+```
 
+2.F(x)-> F(kxx)		C[h,w,c,n]->C[h,w,1,n] 我现在还是不知道为什么要除以xf
 
+```
+kxxf = sum(xf.*conj(xf),3)/ numel(xf);
+```
 
+3.F(kxx)+F(y)-> F(alpha)		C[h,w,1,n]->C[h,w,1,n]
+
+```
+alphaf = yf./(kxxf+lambda);
+```
+
+4.F(z)+F(x)-> F(kzx)		C[h,w,c,n]->C[h,w,1,n]
+
+```
+kzxf = sum(zf.*conj(xf),3)/ numel(xf);
+```
+
+5.F(alpha)+F(kzx)-> r(response)			C[h,w,1,n]->R[h,w,1,n]
+
+```
+r = real(ifft2(alphaf.*kzxf));
+```
+
+##### Backward
+
+1.dl/dr ->dl/drf		R[h,w,1,n]->C[h,w,1,n]
+
+```
+dldrf = fft2(dldr);
+```
+
+2.dl/drf ->	dl/dkzxf		C[h,w,1,n]->C[h,w,1,n]
+
+```
+dldkzxf = dldrf.*alphaf;
+```
+
+3.dl/dkzxf ->dl/dzf		C[h,w,1,n]->C[h,w,c,n]
+
+```
+dldzf = bsxfun(times,dldkzxf./ numel(xf),conj(xf));
+```
+
+4.dl/dzf ->	dl/dz		C[h,w,c,n]->R[h,w,c,n]
+
+```
+dldzf = ifft2(dldzf);
+```
