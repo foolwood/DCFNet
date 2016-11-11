@@ -109,8 +109,8 @@ net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 
 %% Save
 
-% netStruct = net.saveobj() ;
-% save('../model/cnn_dcf.mat', '-struct', 'netStruct') ;
-% clear netStruct ;
+netStruct = net.saveobj() ;
+save('../model/cnn_dcf.mat', '-v7.3', '-struct', 'netStruct') ;
+clear netStruct ;
 
 end

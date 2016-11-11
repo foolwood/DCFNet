@@ -45,7 +45,7 @@ Understanding Deep Image Representations by Inverting Them
 明显可以看出，在很多地方产生了噪声,或者干扰项
 [gray_dcf](train_2/gray_dcf.pdf)
 #### vgg16+DCF的结果
-[vgg_dcf](train_2/vgg_dcf.pdf)
+[vgg_dcf](train_2/vgg16_dcf.pdf)
 预测的响应更接近目标状态，当然，完全重现理想状态一定会产生过拟合，因为有各种变化，如果要是简单的平移，理论上是可以得到非常近似的结果。
 那么我们要设计一个怎样的损失呢。
 其实一般情况下，我们没有太大必要去修正目标，很多时候峰值都在目标附近，比较需要处理的是远处的干扰。
