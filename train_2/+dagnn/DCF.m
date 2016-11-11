@@ -26,7 +26,7 @@ classdef DCF < dagnn.Filter
             
             kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
-            kzf = sum( zf.* conj(xf), 3) / numel(obj.xf(:,:,:,1));
+            kzf = sum( zf.* conj(xf), 3) / numel(xf(:,:,:,1));
             outputs{1} = real(ifft2(alphaf .* kzf));
 
         end

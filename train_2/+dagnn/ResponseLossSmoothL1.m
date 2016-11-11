@@ -41,9 +41,11 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             
             f = obj.nf(:,:,delta_yx_ind);
             loss = max(r - r_idea,0).*max(r - r_idea,0).*f;
-            subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
-            subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
-            drawnow
+            
+%             subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
+%             subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
+%             drawnow
+
 %             outputs{1} = reshape(loss,obj.win_size(1),obj.win_size(2),1,[]);
             
             outputs{1} = sum(loss(:));
