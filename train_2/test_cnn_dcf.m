@@ -77,7 +77,7 @@ subplot(2,3,5);imagesc(response);title('learnt response');
 
 
 response = gaussian_shaped_labels_shift(sigma, window_sz, label_shift);
-subplot(2,3,6);imagesc(response);title('idea predict response');
+subplot(2,3,6);imagesc(response>0.1);title('idea predict response');
 
 end
 

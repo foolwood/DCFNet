@@ -1,6 +1,6 @@
 classdef DCF < dagnn.Filter
 %DCF  layer
-%   Dual Correlation Filter(DCF) two activations of same size exploiting  the API of vl_nnconv
+%   Dual Correlation Filter(DCF) two activations of same size
 %
 %   QiangWang, 2016
 % -------------------------------------------------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ classdef DCF < dagnn.Filter
             obj.load(varargin);
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-            obj.yf = fft2(gaussian_shaped_labels(obj.sigma, obj.win_size));
+            obj.yf = single(fft2(gaussian_shaped_labels(obj.sigma, obj.win_size)));
         end
 
     end

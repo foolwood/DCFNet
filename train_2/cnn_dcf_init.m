@@ -75,12 +75,11 @@ sigma = sqrt(prod(target_sz))/10;
 DCF = dagnn.DCF('win_size', window_sz,'sigma',sigma) ;
 net.addLayer('DCF', DCF, {'conv3_3x','conv3_3sx'}, {'response'}) ;
 
-delta2response = dagnn.delta2response('win_size', window_sz,'sigma',sigma) ;
-net.addLayer('delta2response', delta2response, {'delta_xy'}, {'idea_response'}) ;
+% delta2response = dagnn.delta2response('win_size', window_sz,'sigma',sigma) ;
+% net.addLayer('delta2response', delta2response, {'delta_xy'}, {'idea_response'}) ;
 
-net.addLayer('objective', ...
-    dagnn.Loss('loss', 'logistic'), ...
-    {'response', 'idea_response'}, 'objective');
+ResponseLossSmoothL1 = dagnn.ResponseLossSmoothL1('win_size', window_sz,'sigma',sigma) ;
+net.addLayer('objective', ResponseLossSmoothL1, {'response','delta_yx'}, 'objective') ;
    
 
 % Fill in defaul values
@@ -110,8 +109,8 @@ net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 
 %% Save
 
-netStruct = net.saveobj() ;
-save('../model/cnn_dcf.mat', '-struct', 'netStruct') ;
-clear netStruct ;
+% netStruct = net.saveobj() ;
+% save('../model/cnn_dcf.mat', '-struct', 'netStruct') ;
+% clear netStruct ;
 
 end
