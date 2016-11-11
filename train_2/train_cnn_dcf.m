@@ -66,10 +66,11 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-batch = 1;
 if opts.numGpus > 0
-    target = gpuArray(bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean));
-    search = gpuArray(bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean));
+    target_cpu = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
+    search_cpu = bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean);
+    target = gpuArray(target_cpu);
+    search = gpuArray(search_cpu);
     delta_yx = gpuArray(single(imdb.images.delta_yx(batch,1:2)));
 else
     target = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
