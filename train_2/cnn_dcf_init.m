@@ -75,11 +75,11 @@ sigma = sqrt(prod(target_sz))/10;
 DCF = dagnn.DCF('win_size', window_sz,'sigma',sigma) ;
 net.addLayer('DCF', DCF, {'conv3_3x','conv3_3sx'}, {'response'}) ;
 
-% delta2response = dagnn.delta2response('win_size', window_sz,'sigma',sigma) ;
-% net.addLayer('delta2response', delta2response, {'delta_xy'}, {'idea_response'}) ;
+% ResponseLossSmoothL1 = dagnn.ResponseLossSmoothL1('win_size', window_sz,'sigma',sigma) ;
+% net.addLayer('ResponseLoss', ResponseLossSmoothL1, {'response','delta_yx'}, 'objective') ;
 
-ResponseLossSmoothL1 = dagnn.ResponseLossSmoothL1('win_size', window_sz,'sigma',sigma) ;
-net.addLayer('ResponseLoss', ResponseLossSmoothL1, {'response','delta_yx'}, 'objective') ;
+ResponseLossL1 = dagnn.ResponseLossL1('win_size', window_sz,'sigma',sigma) ;
+net.addLayer('ResponseLoss', ResponseLossL1, {'response','delta_yx'}, 'objective') ;
 
 CenterLoss = dagnn.CenterLoss('win_size', window_sz) ;
 net.addLayer('CenterLoss', CenterLoss, {'response','delta_yx'}, 'CLE') ;

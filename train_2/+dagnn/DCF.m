@@ -1,4 +1,4 @@
-classdef DCF < dagnn.Filter
+classdef DCF < dagnn.ElementWise
 %DCF  layer
 %   Dual Correlation Filter(DCF) two activations of same size
 %
@@ -17,17 +17,19 @@ classdef DCF < dagnn.Filter
 
             x = inputs{1}; % target region
             z = inputs{2}; % search region
-
-            assert(ndims(z) == ndims(x), 'z and x have different number of dimensions');
-            assert(size(z,1) == size(x,1), 'z and x have different size');
+            [h,w,c,~] = size(x);
+            mn = h*w*c;
+            
+            assert(ndims(z) == ndims(x), 'z and x have same number of dimensions');
+            assert(all(size(z) == size(x)), 'z and x have same size');
             
             zf = fft2(z);
             xf = fft2(x);
             
-            kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
+            kxxf = sum(xf .* conj(xf), 3) ./ mn;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
-            kzf = sum( zf.* conj(xf), 3) / numel(xf(:,:,:,1));
-            outputs{1} = real(ifft2(alphaf .* kzf));
+            kzxf = sum(zf .* conj(xf), 3) ./ mn;
+            outputs{1} = real(ifft2(alphaf .* kzxf));
 
         end
 
@@ -40,12 +42,15 @@ classdef DCF < dagnn.Filter
             x = inputs{1}; % target region
             xf = fft2(x);
             
-            kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
+            [h,w,c,~] = size(x);
+            mn = h*w*c;
+            
+            kxxf = sum(xf .* conj(xf), 3) / mn;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
             
             dldrf = fft2(dldr);
-            dldkf = dldrf.*alphaf;
-            dldzf = bsxfun(@times,dldkf,conj(xf))/ numel(xf(:,:,:,1));
+            dldkzxf = dldrf .* alphaf;
+            dldzf = bsxfun(@times,dldkzxf,conj(xf))/ mn;
             dldz = real(ifft2(dldzf));
             dldx = [];
             derInputs{1} = dldx;

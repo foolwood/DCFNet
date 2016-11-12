@@ -1,18 +1,10 @@
-classdef ResponseLossSmoothL1 < dagnn.Loss
-%ResponseLossSmoothL1  layer
-%  `ResponseLossSmoothL1.forward({r, x*})` computes relu loss,
-%  weighting the elements by the smooth L1 distance 
-%  between `x` and `x*`.
+classdef ResponseLossL1 < dagnn.Loss
+%ResponseLossL1  layer
+%  `ResponseLossL1.forward({r, x*})` computes L1 loss.
 %
-%  Here the Loss between two vectors is defined as:
+%  Here the Loss between two matrices is defined as:
 %
-%     Loss = sum_i (relu(r_i - r_idea))^2* f(x_i-x*).
-%
-%  where f is the function :
-%
-%              { 0,         if |delta| < 15,
-%   f(delta) = {
-%              { 1,         otherwise.
+%     Loss = |r - r_idea|
 %
 %  Input 
 %       - r    w x h x 1 x N.
@@ -22,9 +14,7 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
     properties
         win_size = [3,3];
         sigma = 1;
-        threshold = 0.01;
         ny = [];
-        nf = [];
     end
 
     methods
@@ -39,18 +29,16 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            loss = max(r - r_idea,0).*obj.nf(:,:,1,delta_yx_ind);
+            loss = abs(r - r_idea);
             
-%             subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
-%             subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
+%             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(r_idea(:,:,1));
+%             subplot(2,2,4);imagesc(loss(:,:,1));
 %             drawnow
-
-%             outputs{1} = reshape(loss,obj.win_size(1),obj.win_size(2),1,[]);
             
             outputs{1} = sum(loss(:));
             
             n = obj.numAveraged ;
-            m = n + size(inputs{1},4) ;
+            m = n + numel(inputs{1}) ;
             obj.average = (n * obj.average + gather(outputs{1})) / m ;
             obj.numAveraged = m ;
 
@@ -67,32 +55,24 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             delta_xy_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,1,delta_xy_ind);
             
-            delta = max(r - r_idea,0).*obj.nf(:,:,1,delta_xy_ind) ;
+            delta = sign(r - r_idea);
             
             derInputs = {delta.* derOutputs{1}, []} ;
             derParams = {} ;
         end
         
-        function reset(obj)
-            obj.average = 0 ;
-            obj.numAveraged = 0 ;
-        end
-
-        function obj = ResponseLossSmoothL1(varargin)
+        function obj = ResponseLossL1(varargin)
             obj.load(varargin);
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-            obj.threshold = obj.threshold;
+            
             obj.ny = zeros([obj.win_size,1,obj.win_size],'single');
-            obj.nf = zeros([obj.win_size,1,obj.win_size],'single');
             
             y_ = single(gaussian_shaped_labels(obj.sigma, obj.win_size));
-            f_ = single(1 - 1* (y_ > obj.threshold));
             
             for i = 1:obj.win_size(1)
                 for j = 1:obj.win_size(2)
                     obj.ny(:,:,1,i,j) = circshift(y_,[i-1,j-1]);
-                    obj.nf(:,:,1,i,j) = circshift(f_,[i-1,j-1]);
                 end
             end
         end
@@ -108,20 +88,3 @@ labels = exp(-0.5 / sigma^2 * (rs.^2 + cs.^2));
 labels = circshift(labels, -floor(sz(1:2) / 2) + 1);
 assert(labels(1,1) == 1)
 end
-
-
-
-
-% function test()
-% x = rand(16,16,16,16);
-% z = x;
-% yf = repmat(fft2(gaussian_shaped_labels(1, [16,16])),[1,1,1,16]);
-% lambda = 1e-4;
-% 
-% zf = fft2(z);
-% xf = fft2(x);
-% kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
-% alphaf = yf ./ (kxxf + lambda);
-% kzf = sum(xf .* conj(zf), 3) / numel(xf(:,:,:,1));
-% responses = real(ifft2(alphaf .* kzf));
-% end
