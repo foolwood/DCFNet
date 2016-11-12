@@ -5,9 +5,12 @@ opts = [];
 opts.dataDir = '../data';
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
 opts.visualization = false;
+opts.lite = false;
+opts = vl_argparse(opts, varargin);
 imdb = [];
 bbox_mode = 'axis_aligned';
 net_input_size = [125,125,3];
+
 % -------------------------------------------------------------------------
 %           vot16:21395
 % -------------------------------------------------------------------------
@@ -75,6 +78,14 @@ for v = 1:numel(videos)
     end %%end frame
 end %%end v
 
+
+if opts.lite
+    lite_index = randperm(now_index-1,1000);
+    imdb.images.target = imdb.images.target(:,:,:,lite_index);
+    imdb.images.search = imdb.images.search(:,:,:,lite_index);
+    imdb.images.set = imdb.images.set(lite_index);
+    imdb.images.delta_yx = imdb.images.delta_yx(lite_index,:);
+end
 dataMean(1,1,1:3) = single([123,117,104]);
 imdb.images.data_mean(1,1,1:3) = dataMean;
 imdb.meta.sets = {'train', 'val'} ;

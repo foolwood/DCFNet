@@ -79,8 +79,10 @@ net.addLayer('DCF', DCF, {'conv3_3x','conv3_3sx'}, {'response'}) ;
 % net.addLayer('delta2response', delta2response, {'delta_xy'}, {'idea_response'}) ;
 
 ResponseLossSmoothL1 = dagnn.ResponseLossSmoothL1('win_size', window_sz,'sigma',sigma) ;
-net.addLayer('objective', ResponseLossSmoothL1, {'response','delta_yx'}, 'objective') ;
-   
+net.addLayer('ResponseLoss', ResponseLossSmoothL1, {'response','delta_yx'}, 'objective') ;
+
+CenterLoss = dagnn.CenterLoss('win_size', window_sz) ;
+net.addLayer('CenterLoss', CenterLoss, {'response','delta_yx'}, 'CLE') ;
 
 % Fill in defaul values
 % net.initParams();

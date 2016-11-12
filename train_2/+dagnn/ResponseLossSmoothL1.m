@@ -42,16 +42,16 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             f = obj.nf(:,:,delta_yx_ind);
             loss = max(r - 0.1,0).*f;
             
-            subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
-            subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
-            drawnow
+%             subplot(2,2,1);imagesc(r); subplot(2,2,2);imagesc(r_idea);
+%             subplot(2,2,3);imagesc(f); subplot(2,2,4);imagesc(loss);
+%             drawnow
 
 %             outputs{1} = reshape(loss,obj.win_size(1),obj.win_size(2),1,[]);
             
             outputs{1} = sum(loss(:));
             
             n = obj.numAveraged ;
-            m = n + 1 + 1e-9 ;
+            m = n + size(inputs{1},4) ;
             obj.average = (n * obj.average + gather(outputs{1})) / m ;
             obj.numAveraged = m ;
 
@@ -73,6 +73,11 @@ classdef ResponseLossSmoothL1 < dagnn.Loss
             derInputs = {reshape(delta,obj.win_size(1),obj.win_size(2),1,[])...
                 .* derOutputs{1}, []} ;
             derParams = {} ;
+        end
+        
+        function reset(obj)
+            obj.average = 0 ;
+            obj.numAveraged = 0 ;
         end
 
         function obj = ResponseLossSmoothL1(varargin)

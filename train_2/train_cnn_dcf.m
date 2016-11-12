@@ -7,7 +7,7 @@ opts.networkType = 'dagnn' ;
 opts.expDir = fullfile('../data', 'vot-vgg-dcf') ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
-
+opts.lite = ismac();
 
 if ispc()
     trainOpts.gpus = [1];
@@ -36,7 +36,7 @@ end
 if exist(opts.imdbPath, 'file')
   imdb = load(opts.imdbPath) ;
 else
-  imdb = getVOTImdb(opts) ;
+  imdb = getVOTImdb('lite',opts.lite) ;
   if ~exist(opts.expDir,'dir'),mkdir(opts.expDir);end
   save(opts.imdbPath, '-v7.3', '-struct', 'imdb') ;
 end
@@ -74,7 +74,7 @@ if opts.numGpus > 0
     delta_yx = gpuArray(single(imdb.images.delta_yx(batch,1:2)));
 else
     target = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
-    search = bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean);
+    search = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
     delta_yx = single(imdb.images.delta_yx(batch,1:2));
 end
 
