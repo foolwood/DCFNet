@@ -53,9 +53,12 @@ function H = fhog( I, binSize, nOrients, clip, crop )
 %
 % See also hog, hogDraw, gradientHist
 %
-% Piotr's Computer Vision Matlab Toolbox      Version 3.23
-% Copyright 2014 Piotr Dollar.  [pdollar-at-gmail.com]
+% Piotr's Image&Video Toolbox      Version 3.23
+% Copyright 2013 Piotr Dollar.  [pdollar-at-caltech.edu]
+% Please email me if you find bugs, or have suggestions or questions!
 % Licensed under the Simplified BSD License [see external/bsd.txt]
+
+%Note: modified to be more self-contained
 
 if( nargin<2 ), binSize=8; end
 if( nargin<3 ), nOrients=9; end
@@ -63,9 +66,11 @@ if( nargin<4 ), clip=.2; end
 if( nargin<5 ), crop=0; end
 
 softBin = -1; useHog = 2; b = binSize;
-[M,O] = gradientMag( I,0,0,0,1 );
-% M = gradientMag( I,0,0,0,1 );
-H = gradientHist(M,O,binSize,nOrients,softBin,useHog,clip);
+
+[M,O]=gradientMex('gradientMag',I,0,1);
+
+H = gradientMex('gradientHist',M,O,binSize,nOrients,softBin,useHog,clip);
+
 if( crop ), e=mod(size(I),b)<b/2; H=H(2:end-e(1),2:end-e(2),:); end
 
 end

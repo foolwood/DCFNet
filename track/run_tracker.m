@@ -1,12 +1,12 @@
 function [precision, fps] = run_tracker(video, kernel_type, feature_type, show_visualization, show_plots)
 
 %path to the videos (you'll be able to choose one with the GUI).
-base_path = '/Users/wangqiang/Desktop/APP/GOTURN/data/OTB/';
+base_path = '../data/OTB/';
 
 %default settings
 if nargin < 1, video = 'choose'; end
 if nargin < 2, kernel_type = 'gaussian'; end
-if nargin < 3, feature_type = 'hog'; end
+if nargin < 3, feature_type = 'vgg'; end
 if nargin < 4, show_visualization = ~strcmp(video, 'all'); end
 if nargin < 5, show_plots = ~strcmp(video, 'all'); end
 

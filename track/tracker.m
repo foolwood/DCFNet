@@ -67,7 +67,7 @@ function [positions, time] = tracker(video_path, img_files, pos, target_sz, ...
     end
     
     if features.alex,
-        alexnet = load('imagenet-caffe-alex.mat');
+        alexnet = load('../model/imagenet-caffe-alex.mat');
         alexnet = vl_simplenn_tidy(alexnet) ;
         alexnet.layers(2:end) = [];
         alexnet.layers{1, 1}.precious = true;
@@ -75,7 +75,7 @@ function [positions, time] = tracker(video_path, img_files, pos, target_sz, ...
         alexnet.layers{1, 1}.stride = [1,1];
         cnn_net = alexnet;
     elseif features.vgg
-        vggnet = load('imagenet-vgg-verydeep-16.mat');
+        vggnet = load('../model/imagenet-vgg-verydeep-16.mat');
         vggnet = vl_simplenn_tidy(vggnet) ;
         vggnet.layers(5:end) = [];
         vggnet.layers{1, 4}.precious = true;

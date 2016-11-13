@@ -17,3 +17,5 @@ data/train2014.zip.xltd.cfg
 
 *.tmp
 *.asv
+
+*.ini
