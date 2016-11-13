@@ -16,7 +16,7 @@ else
 end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 1;
+trainOpts.numEpochs = 100;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
@@ -53,7 +53,12 @@ end
 [net, info] = trainfn(net, imdb, getBatch(opts), ...
   'expDir', opts.expDir, ...
   opts.train, ...
-  'val', imdb.images.set == 3) ;
+  'val', imdb.images.set == 2) ;
+
+netStruct = net.saveobj() ;
+save('./vgg16_dcf.mat', '-v7.3', '-struct', 'netStruct') ;
+clear netStruct ;
+
 end
 
 % --------------------------------------------------------------------

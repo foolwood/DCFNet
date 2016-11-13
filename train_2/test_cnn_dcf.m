@@ -31,7 +31,8 @@ subplot(2,3,2),imshow(repmat(z,[1,1,3]));hold on;
 plot(window_sz(2)/2+label_shift(2),window_sz(1)/2+label_shift(1),'r*');title('search');
 
 
-netStruct = load('../model/cnn_dcf.mat') ;
+% netStruct = load('../model/cnn_dcf.mat') ;
+netStruct = load('./vgg_dcf.mat') ;
 net = dagnn.DagNN.loadobj(netStruct) ;
 clear netStruct ;
 x = imresize(x,net.meta.normalization.imageSize(1:2));

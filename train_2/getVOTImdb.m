@@ -29,6 +29,7 @@ else
 end
 
 imdb.images.set = set;
+imdb.images.set(randperm(21395,100)) = 2;
 imdb.images.target = zeros([net_input_size,numel(set)],'uint8');
 imdb.images.search = zeros([net_input_size,numel(set)],'uint8');
 imdb.images.delta_yx = zeros(numel(set),2,'int16');

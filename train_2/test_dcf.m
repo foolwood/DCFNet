@@ -29,7 +29,7 @@ z = normalize(z,cos_window);
 
 
 net = dagnn.DagNN() ;
-dcfBlock = dagnn.DCF('target_size', window_sz,'sigma',sigma) ;
+dcfBlock = dagnn.DCF('win_size', window_sz,'sigma',sigma) ;
 net.addLayer('dcf', dcfBlock, {'x','z'}, {'response'}) ;
 
 net.eval({'x',x,'z',z});
