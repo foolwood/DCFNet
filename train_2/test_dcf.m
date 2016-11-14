@@ -8,8 +8,8 @@ image_file = fullfile('./Fish/img/',image_file);
 
 
 gt = dlmread('./Fish/groundtruth_rect.txt');
-start_frame = 100;
-next_frame = 10;
+start_frame = 1;
+next_frame = 20;
 
 target_sz = gt(start_frame,[4,3]);
 pos = gt(start_frame,[2,1])+floor(target_sz/2);
@@ -17,15 +17,21 @@ window_sz = floor(target_sz * (1 + 1.5));
 cos_window = single(hann(window_sz(1))) * single(hann(window_sz(2)))';
 sigma = sqrt(prod(target_sz))/10;
 
+target_sz_2 = gt(next_frame,[4,3]);
+pos_2 = gt(next_frame,[2,1])+floor(target_sz_2/2);
+
+label_shift = pos_2 - pos;
 
 im = imread(image_file{start_frame});
 x = get_subwindow(im, pos, window_sz);
-subplot(2,3,1),imshow(repmat(x,[1,1,3]));title('target');
+subplot(2,3,1),imshow(repmat(x,[1,1,3]));hold on;
+plot(window_sz(2)/2,window_sz(1)/2,'r*');title('target');
 x = normalize(x,cos_window);
 
 im = imread(image_file{next_frame});
 z = get_subwindow(im, pos, window_sz);
-subplot(2,3,2),imshow(repmat(z,[1,1,3]));title('search');
+subplot(2,3,2),imshow(repmat(z,[1,1,3]));hold on;
+plot(window_sz(2)/2+label_shift(2),window_sz(1)/2+label_shift(1),'r*');title('search');
 z = normalize(z,cos_window);
 
 
@@ -50,7 +56,9 @@ end
 predic_pos = pos + [vert_delta - 1, horiz_delta - 1];
 predic_rect = [predic_pos([2,1]) - target_sz([2,1])/2, target_sz([2,1])];
 
-subplot(2,3,4),imshow(repmat(im,[1,1,3]));rectangle('Position',predic_rect);
+subplot(2,3,4),imshow(repmat(im,[1,1,3]));
+rectangle('Position',predic_rect,'EdgeColor',[0,1,1]);
+rectangle('Position',gt(next_frame,:),'EdgeColor',[0,1,0]);
 title('predic rect');
 
 
@@ -63,10 +71,7 @@ net.eval({'x',x,'z',x});
 response = net.vars(net.getVarIndex('response')).value ;
 subplot(2,3,5);imagesc(response);title('learnt response');
 
-target_sz_2 = gt(next_frame,[4,3]);
-pos_2 = gt(next_frame,[2,1])+floor(target_sz_2/2);
 
-label_shift = pos_2 - pos;
 response = gaussian_shaped_labels_shift(sigma, window_sz, label_shift);
 subplot(2,3,6);imagesc(response);title('idea predict response');
 

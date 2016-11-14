@@ -7,8 +7,8 @@ image_file = fullfile('./Fish/img/',image_file);
 
 
 gt = dlmread('./Fish/groundtruth_rect.txt');
-start_frame = 100;
-next_frame = 10;
+start_frame = 1;
+next_frame = 20;
 
 target_sz = gt(start_frame,[4,3]);
 pos = gt(start_frame,[2,1])+floor(target_sz/2);

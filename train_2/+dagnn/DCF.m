@@ -17,19 +17,26 @@ classdef DCF < dagnn.ElementWise
 
             x = inputs{1}; % target region
             z = inputs{2}; % search region
+            xf = fft2(x);
+            zf = fft2(z);
+            xf_conj = conj(xf);
             [h,w,c,~] = size(x);
             mn = h*w*c;
             
             assert(ndims(z) == ndims(x), 'z and x have same number of dimensions');
             assert(all(size(z) == size(x)), 'z and x have same size');
             
-            zf = fft2(z);
-            xf = fft2(x);
-            
-            kxxf = sum(xf .* conj(xf), 3) ./ mn;
-            alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
-            kzxf = sum(zf .* conj(xf), 3) ./ mn;
-            outputs{1} = real(ifft2(alphaf .* kzxf));
+
+%             kxxf = sum(xf .* conj(xf), 3) ./ mn;
+%             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
+%             kzxf = sum(zf .* conj(xf), 3) ./ mn;
+%             outputs{1} = real(ifft2(alphaf .* kzxf));
+
+            outputs{1} = real(ifft2(...
+                bsxfun(@rdivide,...
+                sum(bsxfun(@times,bsxfun(@times,zf,xf_conj),obj.yf),3),...
+                bsxfun(@plus,sum(bsxfun(@times,xf,xf_conj),3),obj.lambda*mn))));
+
 
         end
 
@@ -40,24 +47,41 @@ classdef DCF < dagnn.ElementWise
             dldr = derOutputs{1};
             
             x = inputs{1}; % target region
-            xf = fft2(x);
             z = inputs{2}; % search region
+            xf = fft2(x);
             zf = fft2(z);
+            xf_conj = conj(xf);
             
             [h,w,c,~] = size(x);
             mn = h*w*c;
             
-            kxxf = sum(xf .* conj(xf), 3) / mn;
-            alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
+%             kxxf = sum(xf .* xf_conj, 3) / mn;
+%             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
+%             
+%             dldrf = fft2(dldr);
+%             dldkzxf = dldrf .* alphaf;
+%             dldzf = bsxfun(@times,dldkzxf,xf_conj)/ mn;
+%             dldz = real(ifft2(dldzf));
+%             dldx = bsxfun(@rdivide,...
+%                 bsxfun(@times,(dldrf.*obj.yf),...
+%                 bsxfun(@times,conj(zf),(kxxf + obj.lambda))-zf.*xf_conj.*xf_conj),...
+%                 (kxxf + obj.lambda).*(kxxf + obj.lambda));
             
+
+            denf =  bsxfun(@plus,sum(bsxfun(@times,xf,xf_conj),3),obj.lambda*mn);
             dldrf = fft2(dldr);
-            dldkzxf = dldrf .* alphaf;
-            dldzf = bsxfun(@times,dldkzxf,conj(xf))/ mn;
-            dldz = real(ifft2(dldzf));
-            dldx = bsxfun(@rdivide,...
-                bsxfun(@times,(dldrf.*obj.yf),...
-                bsxfun(@times,conj(zf),(kxxf + obj.lambda))-zf.*conj(xf).*conj(xf)),...
-                (kxxf + obj.lambda).*(kxxf + obj.lambda));
+            dldrf_y = bsxfun(@times,dldrf,obj.yf);
+            dldz = real(ifft2(bsxfun(@times,...
+                bsxfun(@rdivide,dldrf_y,denf),xf_conj)));
+            
+            dldx = real(ifft2(...
+                bsxfun(@times,dldrf_y,...
+                bsxfun(@rdivide,...
+                bsxfun(@minus,bsxfun(@times,conj(zf),denf),...
+                bsxfun(@times,bsxfun(@times,zf,xf_conj),xf_conj)),...
+                bsxfun(@times,denf,denf)))...
+                ));
+            
             derInputs{1} = dldx;
             derInputs{2} = dldz;
             derParams = {};
