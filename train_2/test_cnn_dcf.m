@@ -1,5 +1,6 @@
 function test_cnn_dcf()
-
+addpath('../utils');
+run vl_setupnn();
 image_file = dir('./Fish/img/*.jpg');
 image_file = sort({image_file.name});
 image_file = fullfile('./Fish/img/',image_file);

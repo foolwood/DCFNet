@@ -1,4 +1,5 @@
 function test_dcf()
+addpath('../utils');
 normalize = @(x,y)  ((double(x)/255) - mean(double(x(:)))/255).*y  ;
 
 image_file = dir('./Fish/img/*.jpg');

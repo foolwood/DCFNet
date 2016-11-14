@@ -1,5 +1,5 @@
 function [precision, fps] = run_tracker(video, kernel_type, feature_type, show_visualization, show_plots)
-
+addpath('../utils');
 %path to the videos (you'll be able to choose one with the GUI).
 base_path = '../data/OTB/';
 
