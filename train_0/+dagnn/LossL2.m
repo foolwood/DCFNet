@@ -19,10 +19,11 @@ methods
 %         subplot(1,2,1);imagesc(inputs{1}(:,:,1,1));
 %         subplot(1,2,2);imagesc(inputs{2}(:,:,1,1));
 %         drawnow;
+
         delta = inputs{1} - inputs{2} ;
         l2Delta = (delta.*delta) ;
 
-        outputs{1} = mean(l2Delta(:));
+        outputs{1} = sum(l2Delta(:))/numel(delta) ;
 
         % Accumulate loss statistics.
         n = obj.numAveraged ;
@@ -36,7 +37,7 @@ methods
         %
         %  f'(x) = 2x
         %
-
+        
         delta = (2/numel(inputs{1}))*(inputs{1} - inputs{2}) ;
         derInputs = {delta .* derOutputs{1}, []} ;
         derParams = {} ;

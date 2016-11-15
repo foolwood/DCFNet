@@ -1,4 +1,4 @@
-function net = cnn_hog_init(varargin)
+function net = cnn_hog_l2_init(varargin)
 rng('default');
 rng(0) ;
 

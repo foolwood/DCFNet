@@ -1,9 +1,9 @@
-function [net, info] = cnn_hog(varargin)
-%CNN_HOG  Demonstrates CNN Expression
+function [net, info] = cnn_l1(varargin)
+%CNN_l2  Demonstrates L1 loss
 run('vl_setupnn.m') ;
 
 opts.network = [] ;
-opts.feature = 'hog';
+opts.feature = 'gray-l1';
 opts.networkType = 'dagnn' ;
 [opts, varargin] = vl_argparse(opts, varargin) ;
 
@@ -24,7 +24,7 @@ end
 trainOpts.learningRate = 1e-6;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 50;
-trainOpts.batchSize = 20;
+trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
 opts = vl_argparse(opts, varargin) ;
@@ -35,7 +35,7 @@ if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
 % --------------------------------------------------------------------
 
 if isempty(opts.network)
-  net = cnn_hog_init('networkType', opts.networkType) ;
+  net = cnn_l1_init('networkType', opts.networkType) ;
 else
   net = opts.network ;
   opts.network = [] ;
@@ -61,7 +61,7 @@ end
 [net, info] = trainfn(net, imdb, getBatch(opts), ...
                       'expDir', opts.expDir, ...
                       opts.train, ...
-                      'val', imdb.images.set == 2) ;
+                      'val', find(imdb.images.set == 2)) ;
 end
 
 
@@ -70,7 +70,8 @@ end
 % --------------------------------------------------------------------
 function fn = getBatch(opts)
 % --------------------------------------------------------------------
-bopts = struct('numGpus', numel(opts.train.gpus),'sz',[227,227]) ;
+conv_factor = reshape(single([0.3,0.3,0.3]),1,1,[]);
+bopts = struct('numGpus', numel(opts.train.gpus),'conv_factor',conv_factor) ;
 fn = @(x,y) getDagNNBatch(bopts,x,y) ;
 end
 
@@ -79,31 +80,24 @@ function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 
 if opts.numGpus > 0
-    images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',5,...
-        'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
-    images = images{1};
+    image_rgb = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',5,...
+        'Pack','CropLocation','random','Resize',[256 256]) ;
+    image_rgb = image_rgb{1};
     
-    hog = zeros(64,64,32,size(images,4),'single');
-    for i = 1:size(images,4)
-        hog(1:64,1:64,1:32,i) = fhog(images(:,:,:,i), 4, 9);
-    end
-    hog(:,:,32,:) = [];
-    images = gpuArray(images);
-    hog = gpuArray(hog*100);
+    image_gray = sum(bsxfun(@times,image_rgb,opts.conv_factor),3);
+   
+    image_rgb = gpuArray(image_rgb);
+    image_gray = gpuArray(image_gray);
 else
-    images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',32,...
-        'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
-    images = images{1};
-    hog = zeros(64,64,32,size(images,4),'single');
+    image_rgb = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',5,...
+        'Pack','CropLocation','random','Resize',[256 256]) ;
+    image_rgb = image_rgb{1};
     
-    for i = 1:size(images,4)
-        hog(1:64,1:64,1:32,i) = fhog(images(:,:,:,i), 4, 9);
-    end
-    hog(:,:,32,:) = [];
-    hog = hog*100;
+    image_gray = sum(bsxfun(@times,image_rgb,opts.conv_factor),3);
+   
 end
 
-inputs = {'image', images, 'hog', hog} ;
+inputs = {'image_rgb', image_rgb, 'image_gray', image_gray} ;
 end
 
 % --------------------------------------------------------------------
