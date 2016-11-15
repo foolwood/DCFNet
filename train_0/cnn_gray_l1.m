@@ -1,5 +1,5 @@
-function [net, info] = cnn_l1(varargin)
-%CNN_l2  Demonstrates L1 loss
+function [net, info] = cnn_gray_l1(varargin)
+%CNN_GRAY_l1  Demonstrates L1 loss
 run('vl_setupnn.m') ;
 
 opts.network = [] ;
