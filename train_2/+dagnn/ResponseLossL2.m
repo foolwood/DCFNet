@@ -56,9 +56,7 @@ classdef ResponseLossL2 < dagnn.Loss
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            n = numel(r);
-            
-            derInputs = {(derOutputs{1}*2/n)*(r - r_idea), []} ;
+            derInputs = {(derOutputs{1}*2)*(r - r_idea), []} ;
             derParams = {} ;
         end
         
