@@ -23,7 +23,7 @@ else
 end
 trainOpts.learningRate = 1e-6;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 50;
+trainOpts.numEpochs = 4;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
@@ -106,14 +106,10 @@ function imdb = getHogImdb(opts)
 datapath = dir(fullfile(opts.dataDir,'*.jpg'));
 datapath = fullfile(opts.dataDir,{datapath.name});
 
-dataMean = [123.6800,116.7790 ,103.9390];
-dataMean = reshape(dataMean,1,1,[]);
-
 set = [ones(1,round(numel(datapath)*0.9)),...
     2*ones(1,numel(datapath)-round(numel(datapath)*0.9))];
 
 imdb.images.datapath = datapath ;
-imdb.images.data_mean = dataMean;
 imdb.images.set = set ;
 imdb.meta.sets = {'train', 'val'} ;
 end

@@ -77,7 +77,6 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-
 if opts.numGpus > 0
     images = vl_imreadjpeg(imdb.images.datapath(batch),'NumThreads',5,...
         'Pack','CropLocation','random','Resize',[256 256],'SubtractAverage',imdb.images.data_mean) ;
