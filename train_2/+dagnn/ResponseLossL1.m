@@ -31,9 +31,9 @@ classdef ResponseLossL1 < dagnn.Loss
             
             loss = abs(r - r_idea);
             
-%             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(r_idea(:,:,1));
-%             subplot(2,2,4);imagesc(loss(:,:,1));
-%             drawnow
+            subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(r_idea(:,:,1));
+            subplot(2,2,4);imagesc(loss(:,:,1));
+            drawnow
             
             outputs{1} = mean(loss(:));
             
@@ -52,8 +52,8 @@ classdef ResponseLossL1 < dagnn.Loss
             delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
             
-            delta_xy_ind = sub2ind(obj.win_size,delta_y,delta_x);
-            r_idea = obj.ny(:,:,1,delta_xy_ind);
+            delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
+            r_idea = obj.ny(:,:,1,delta_yx_ind);
             
             delta = sign(r - r_idea)/numel(r);
             
