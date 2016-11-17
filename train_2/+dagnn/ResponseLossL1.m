@@ -42,7 +42,7 @@ classdef ResponseLossL1 < dagnn.Loss
 %             subplot(2,2,4);imagesc(loss(:,:,1));
 %             drawnow
             
-            outputs{1} = mean(mean(mean(mean(loss))));
+            outputs{1} = sum(sum(sum(sum(loss))));
             
             n = obj.numAveraged ;
             m = n + 1 ;
@@ -60,8 +60,9 @@ classdef ResponseLossL1 < dagnn.Loss
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
             
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
+            r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            delta = sign(r - obj.ny(:,:,1,delta_yx_ind))/numel(r);
+            delta = sign(r - r_idea);
             
             derInputs = {delta.* derOutputs{1}, []} ;
             derParams = {} ;

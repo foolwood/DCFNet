@@ -6,7 +6,7 @@ base_path = '../data/OTB/';
 %default settings
 if nargin < 1, video = 'choose'; end
 if nargin < 2, kernel_type = 'gaussian'; end
-if nargin < 3, feature_type = 'vgg'; end
+if nargin < 3, feature_type = 'vgg_basketball'; end
 if nargin < 4, show_visualization = ~strcmp(video, 'all'); end
 if nargin < 5, show_plots = ~strcmp(video, 'all'); end
 
@@ -19,6 +19,7 @@ features.gray = false;
 features.hog = false;
 features.alex = false;
 features.vgg = false;
+features.vgg_basketball = false;
 
 padding = 1.5;  %extra area surrounding the target
 lambda = 1e-4;  %regularization
@@ -67,6 +68,16 @@ switch feature_type
         kernel.poly_b = 9;
         
         features.vgg = true;
+        cell_size = 1;
+    case 'vgg_basketball',
+        interp_factor = 0.02;
+        
+        kernel.sigma = 0.5;
+        
+        kernel.poly_a = 1;
+        kernel.poly_b = 9;
+        
+        features.vgg_basketball = true;
         cell_size = 1;
         
     otherwise

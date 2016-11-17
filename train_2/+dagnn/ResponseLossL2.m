@@ -33,15 +33,15 @@ classdef ResponseLossL2 < dagnn.Loss
             if isempty(obj.ny)
                 obj.initNY(useGPU);
             end
-            
-
+           
             loss = (r - obj.ny(:,:,1,delta_yx_ind));
+            loss = loss.*loss;
             
-%             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,1));
-%             subplot(2,2,4);imagesc(loss(:,:,1));
-%             drawnow
+            subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,delta_yx_ind(1)));
+            subplot(2,2,4);imagesc(loss(:,:,1));
+            drawnow
             
-            outputs{1} = sum(sum(sum(sum(loss.*loss))));
+            outputs{1} = sum(sum(sum(sum(loss))));
             
             n = obj.numAveraged ;
             m = n + 1 ;
@@ -59,8 +59,9 @@ classdef ResponseLossL2 < dagnn.Loss
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
             
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
+            r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            derInputs = {(derOutputs{1}*2)*(r - obj.ny(:,:,1,delta_yx_ind)), []} ;
+            derInputs = {(derOutputs{1}*2)*(r - r_idea), []} ;
             derParams = {} ;
         end
         

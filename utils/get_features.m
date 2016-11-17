@@ -85,6 +85,35 @@ if features.vgg,
 
 end
 
+
+if features.vgg_basketball,
+    im_ = single(im) ;
+    im_ = bsxfun(@minus, im_, single(reshape([123,117,104],[1,1,3]))) ;
+    res = vl_simplenn(net, im_) ;
+    x = squeeze(gather(res(end).x)) ;
+    
+    sz = size(x);
+    x_col = reshape(x,[],sz(3));
+    mn = mean(x_col);
+    sd = std(x_col);
+    sd(sd==0) = 1;
+    mn = reshape(mn,[1,1,sz(3)]);
+    sd = reshape(sd,[1,1,sz(3)]);
+    x = bsxfun(@minus,x,mn);
+    x = bsxfun(@rdivide,x,sd);
+    
+% for i = 1:size(x,3)
+%     x1 = x(:,:,i);
+%     mn = mean(x1(:));
+%     sd = std(x1(:));
+%     sd(sd==0) = 1;
+%     xn = bsxfun(@minus,x1,mn);
+%     xn = bsxfun(@rdivide,xn,sd);
+%     x(:,:,i) = xn;
+% end
+
+end
+
 %process with cosine window if needed
 if ~isempty(cos_window),
     x = bsxfun(@times, x, cos_window);

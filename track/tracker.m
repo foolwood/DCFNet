@@ -80,6 +80,10 @@ function [positions, time] = tracker(video_path, img_files, pos, target_sz, ...
         vggnet.layers(5:end) = [];
         vggnet.layers{1, 4}.precious = true;
         cnn_net = vggnet;
+    elseif features.vgg_basketball
+        vgg_basketball = load('../model/vgg_basketball.mat');
+        vgg_basketball = vl_simplenn_tidy(vgg_basketball) ;
+        cnn_net = vgg_basketball;
     else
         cnn_net = [];
     end
