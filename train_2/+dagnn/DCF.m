@@ -7,10 +7,11 @@ classdef DCF < dagnn.ElementWise
     properties
         win_size = [3,3];
         sigma = 1;
+    end
+    properties (Transient)
         yf = [];
         lambda = 1e-4;
     end
-
     methods
         function outputs = forward(obj, inputs, params)
             assert(numel(inputs) == 2, 'two inputs are needed');
@@ -25,6 +26,11 @@ classdef DCF < dagnn.ElementWise
             
             assert(ndims(z) == ndims(x), 'z and x have same number of dimensions');
             assert(all(size(z) == size(x)), 'z and x have same size');
+            
+            useGPU = isa(x, 'gpuArray');
+            if isempty(obj.yf)
+                obj.initYF(useGPU);
+            end
             
             kxxf = sum(xf .* xf_conj, 3) ./ mn;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
@@ -62,11 +68,27 @@ classdef DCF < dagnn.ElementWise
             derParams = {};
         end
         
+        function initYF(obj, useGPU)
+            yf_ = single(fft2(gaussian_shaped_labels(obj.sigma, obj.win_size)));
+            lambda_ = 1e-4;
+            if useGPU
+                obj.yf = gpuArray(yf_);
+                obj.lambda = gpuArray(lambda_);
+            else
+                obj.yf = yf_;
+                obj.lambda = lambda_;
+            end
+        end
+        
+        function obj = reset(obj)
+            obj.yf = [] ;
+            obj.lambda = 1e-4;
+        end
+        
         function obj = DCF(varargin)
             obj.load(varargin);
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-            obj.yf = single(fft2(gaussian_shaped_labels(obj.sigma, obj.win_size)));
         end
 
     end

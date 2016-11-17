@@ -14,9 +14,10 @@ classdef ResponseLossL2 < dagnn.Loss
     properties
         win_size = [3,3];
         sigma = 1;
+    end
+    properties (Transient)
         ny = [];
     end
-
     methods
         function outputs = forward(obj, inputs, params)
             assert(numel(inputs) == 2, 'two inputs are needed');
@@ -27,16 +28,20 @@ classdef ResponseLossL2 < dagnn.Loss
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
             
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
-            r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            loss = (r - r_idea);
-            loss = loss.*loss;
+            useGPU = isa(r, 'gpuArray');
+            if isempty(obj.ny)
+                obj.initNY(useGPU);
+            end
             
-            subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(r_idea(:,:,1));
-            subplot(2,2,4);imagesc(loss(:,:,1));
-            drawnow
+
+            loss = (r - obj.ny(:,:,1,delta_yx_ind));
             
-            outputs{1} = sum(loss(:));
+%             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,1));
+%             subplot(2,2,4);imagesc(loss(:,:,1));
+%             drawnow
+            
+            outputs{1} = sum(sum(sum(sum(loss.*loss))));
             
             n = obj.numAveraged ;
             m = n + 1 ;
@@ -54,26 +59,37 @@ classdef ResponseLossL2 < dagnn.Loss
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
             
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
-            r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            derInputs = {(derOutputs{1}*2)*(r - r_idea), []} ;
+            derInputs = {(derOutputs{1}*2)*(r - obj.ny(:,:,1,delta_yx_ind)), []} ;
             derParams = {} ;
+        end
+        
+        function initNY(obj, useGPU)
+            ny_ = zeros([obj.win_size,1,obj.win_size],'single');
+            
+            y_ = single(gaussian_shaped_labels(obj.sigma, obj.win_size));
+            
+            for i = 1:obj.win_size(1)
+                for j = 1:obj.win_size(2)
+                    ny_(:,:,1,i,j) = circshift(y_,[i-1,j-1]);
+                end
+            end
+            if useGPU
+                obj.ny = gpuArray(ny_);
+            else
+                obj.ny = ny_;
+            end
+        end
+        
+        function obj = reset(obj)
+            obj.ny = [] ;
         end
         
         function obj = ResponseLossL2(varargin)
             obj.load(varargin);
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-            
-            obj.ny = zeros([obj.win_size,1,obj.win_size],'single');
-            
-            y_ = single(gaussian_shaped_labels(obj.sigma, obj.win_size));
-            
-            for i = 1:obj.win_size(1)
-                for j = 1:obj.win_size(2)
-                    obj.ny(:,:,1,i,j) = circshift(y_,[i-1,j-1]);
-                end
-            end
+            obj.ny = [];
         end
 
     end
