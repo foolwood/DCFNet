@@ -17,7 +17,7 @@ end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 1;
-trainOpts.batchSize = 20;
+trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;

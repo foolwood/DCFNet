@@ -15,7 +15,7 @@ classdef DCF < dagnn.ElementWise
     methods
         function outputs = forward(obj, inputs, params)
             assert(numel(inputs) == 2, 'two inputs are needed');
-
+            
             x = inputs{1}; % target region
             z = inputs{2}; % search region
             xf = fft2(x);
@@ -58,11 +58,11 @@ classdef DCF < dagnn.ElementWise
             
             dldrf = fft2(dldr);
             dldz = real(ifft2(bsxfun(@times,dldrf.*alphaf,xf_conj)/mn));
-%             dldx = real(ifft2((bsxfun(@rdivide,...
-%                bsxfun(@times,conj(bsxfun(@times,zf,obj.yf)),kxxf+obj.lambda)-...
-%                bsxfun(@times,sum(zf.*xf_conj,3).*obj.yf,xf_conj),...
-%                (kxxf + obj.lambda).*(kxxf + obj.lambda))/mn)));
-            dldx = [];
+            dldx = real(ifft2((bsxfun(@times,dldrf,...
+                bsxfun(@rdivide,...
+                bsxfun(@times,conj(bsxfun(@times,zf,obj.yf)/mn),kxxf+obj.lambda)-...
+                bsxfun(@times,(sum(zf.*xf_conj,3)/mn).*obj.yf,xf_conj/mn),...
+                (kxxf + obj.lambda).*(kxxf + obj.lambda))))));
             derInputs{1} = dldx;
             derInputs{2} = dldz;
             derParams = {};
