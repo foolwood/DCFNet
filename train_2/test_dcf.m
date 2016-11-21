@@ -7,7 +7,6 @@ image_file = dir('./Fish/img/*.jpg');
 image_file = sort({image_file.name});
 image_file = fullfile('./Fish/img/',image_file);
 
-
 gt = dlmread('./Fish/groundtruth_rect.txt');
 start_frame = 1;
 next_frame = 20;
@@ -62,7 +61,6 @@ rectangle('Position',predic_rect,'EdgeColor',[0,1,1]);
 rectangle('Position',gt(next_frame,:),'EdgeColor',[0,1,0]);
 title('predic rect');
 
-
 % sz = [100,100];
 % sigma = sqrt(prod(sz/2.5))/10;
 % label_shift = [0,0];
@@ -72,10 +70,10 @@ net.eval({'x',x,'z',x});
 response = net.vars(net.getVarIndex('response')).value ;
 subplot(2,3,5);imagesc(response);title('learnt response');
 
-
 response = gaussian_shaped_labels_shift(sigma, window_sz, label_shift);
 subplot(2,3,6);imagesc(response);title('idea predict response');
 
+saveas(gcf,'gray_dcf','pdf')
 end
 
 

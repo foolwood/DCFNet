@@ -5,7 +5,6 @@ image_file = dir('./Fish/img/*.jpg');
 image_file = sort({image_file.name});
 image_file = fullfile('./Fish/img/',image_file);
 
-
 gt = dlmread('./Fish/groundtruth_rect.txt');
 start_frame = 1;
 next_frame = 20;
@@ -19,18 +18,15 @@ target_sz_2 = gt(next_frame,[4,3]);
 pos_2 = gt(next_frame,[2,1])+floor(target_sz_2/2);
 label_shift = pos_2 - pos;
 
-
 im = imread(image_file{start_frame});
 x = get_subwindow(im, pos, window_sz);
 subplot(2,3,1),imshow(repmat(x,[1,1,3]));hold on;
 plot(window_sz(2)/2,window_sz(1)/2,'r*');title('target');
 
-
 im = imread(image_file{next_frame});
 z = get_subwindow(im, pos, window_sz);
 subplot(2,3,2),imshow(repmat(z,[1,1,3]));hold on;
 plot(window_sz(2)/2+label_shift(2),window_sz(1)/2+label_shift(1),'r*');title('search');
-
 
 netStruct = load('../model/cnn_dcf.mat') ;
 % netStruct = load('./vgg_dcf.mat') ;
@@ -43,7 +39,6 @@ z = repmat(z,[1,1,3]);
 
 x = bsxfun(@minus,single(x),net.meta.normalization.averageImage);
 z = bsxfun(@minus,single(z),net.meta.normalization.averageImage);
-
 
 net.eval({'target',x,'search',z});
 response = net.vars(net.getVarIndex('response')).value ;
@@ -77,10 +72,10 @@ response = net.vars(net.getVarIndex('response')).value ;
 response = imresize(response,window_sz);
 subplot(2,3,5);imagesc(response);title('learnt response');
 
-
 response = gaussian_shaped_labels_shift(sigma, window_sz, label_shift);
 subplot(2,3,6);imagesc(response);title('idea predict response');
 
+saveas(gcf,'vgg16_dcf','pdf')
 end
 
 
