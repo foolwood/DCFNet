@@ -19,3 +19,13 @@ data/train2014.zip.xltd.cfg
 *.asv
 
 *.ini
+
+*.aux
+
+*.bbl
+
+*.log
+
+*.gz
+
+*.blg

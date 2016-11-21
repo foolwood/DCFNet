@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsfonts}
+\usepackage{graphicx}
+
+\begin{document}
+\title{DeepDCF}
+\author{QiangWang}
+\date{\today}
+\maketitle
+
+\section{Discriminative Correlation Filters}
+	\subsection{DSST}
+	\textbf{(PCA-HOG+Gray)+DCF+Scale Esimation}\\
+	key word: circular correlation,Parserval's identity, dense feature
+		\subsubsection{Derivation}
+		patch: $x_1,...,x_t$	\\
+		label: $y_1,...,y_t$	\\
+		filter: $w_t$	\\
+		test patch: $z$	\\
+
+$$
+\epsilon =  \sum_{j=1}^{t}\left \| w_{t}\star x_{j}-y_{j} \right \|^{2} = \sum_{j=1}^{t}\left \| \overline{W}_{t} \odot X_{j}-Y_{j} \right \|^{2}
+$$
+
+
+$$
+W_{t}=\frac{\sum_{j=1}^{t}\overline{Y}_{j} \odot X_{j}}{\sum_{j=1}^{t}X_{j} \odot\overline{ X_{j}}} 
+$$
+
+$$
+y=\mathfrak{F}^{-1} \left( {\overline{W}_{t} \odot Z}\right)
+ = \mathfrak{F}^{-1} \left(\frac{\sum_{j=1}^{t}\overline{X}_{j} \odot Y_{j} \odot Z}{\sum_{j=1}^{t}\overline{X_{j}} \odot X_{j}} \right)
+$$
+
+This is a little different between MOSSE\cite{MOSSE} and this Derivation. No regularization term.
+		
+
+
+\pagebreak		
+\bibliographystyle{plain}
+\bibliography{bibfile}
+
+\end{document}
+
+
+
