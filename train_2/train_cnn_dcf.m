@@ -7,17 +7,17 @@ opts.networkType = 'dagnn' ;
 opts.expDir = fullfile('../data', 'vot-vgg-dcf') ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
-opts.lite = ismac();
+opts.lite = false;
 
 if ispc()
     trainOpts.gpus = [1];
 else
     trainOpts.gpus = [];
 end
-trainOpts.learningRate = 1e-4;
+trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 20;
-trainOpts.batchSize = 10;
+trainOpts.numEpochs = 50;
+trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;

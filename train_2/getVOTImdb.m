@@ -61,18 +61,18 @@ for v = 1:numel(videos)
     for frame = 1:(numel(img_files)-1)
         if lite_index(now_index)
             pos = pos_gt(frame,:);
-            sz = sz_gt(frame,:)*2;
+            win_sz = sz_gt(frame,:)*(1+1.5);
             delta_yx_raw = pos_gt(frame+1,:)-pos_gt(frame,:);
             
             im_prev = imread(img_files{frame});
             im_curr = imread(img_files{frame+1});
             
             imdb.images.target(:,:,:,now_index) = imresize(...
-                get_subwindow(im_prev, pos, sz),net_input_size(1:2));
+                get_subwindow(im_prev, pos, win_sz),net_input_size(1:2));
             imdb.images.search(:,:,:,now_index) = imresize(...
-                get_subwindow(im_curr, pos, sz),net_input_size(1:2));
+                get_subwindow(im_curr, pos, win_sz),net_input_size(1:2));
             
-            imdb.images.delta_yx(now_index,1:2) = delta_yx_raw.*net_input_size(1:2)./sz;
+            imdb.images.delta_yx(now_index,1:2) = delta_yx_raw.*net_input_size(1:2)./win_sz;
             
             if opts.visualization
                 f_1.set('CData',imdb.images.target(:,:,:,now_index));

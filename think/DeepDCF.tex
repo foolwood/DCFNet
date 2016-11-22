@@ -4,14 +4,46 @@
 \usepackage{graphicx}
 \usepackage{listings}
 
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
 \begin{document}
-\title{DeepDCF}
+\title{DeepDCF: The best feature for the DCF based tracker }
 \author{QiangWang}
 \date{\today}
 \maketitle
 
+\section{Abstract}
+
+Discriminative Correlation Filters(DCF) have been widely used recent years in visual tracking due to the high precision and fast training and detection.
+
+Convolutional Networks can enjoy millions labeled images for the offline representation learning.Classification even loss the spatial information.
+
+Tracking is differenet with detection and classification. Classification and DET both eliminate the differences in the same class. 
+
+To put the tracking problem simple to the similarity metrics for total offline learning is a unreasonable hypothesis. The surrounding and the target motion fusing in temporal jointly determine the trajectory of the target.
+
+\section{Introduction}
+
+
+\subsection{related work}
+
+\subsection{CNN}
+	CNN can be  treated as a encode function $ \Phi (x)$ of receptive field.
+	
+\textit{	\begin{center}
+\includegraphics[width=3in]{./img/depthcol.jpg}
+\end{center}}
+	
+$$ \Phi(x)=f^{l} $$
+$x \in \mathbb{R}^{m \times n} \longrightarrow f \in \mathbb{R}^{d}$
+
+It is sparse (only a few input units contribute to a given output unit) and reuses parameters (the same weights are applied to multiple locations in the input)
+
+\subsection{contributions}
+
 \section{Discriminative Correlation Filters}
-	\subsection{DSST}
+	\subsection{DSST Derivation}
 	\textbf{(PCA-HOG+Gray)+DCF+Scale Esimation}\\
 	key word: circular correlation,Parserval's identity, dense feature
 		\subsubsection{Single Feature(gray)}
@@ -75,19 +107,14 @@ $$
 
 
 	\subsection{SRDCF}
+	\subsection{CF2}
 
-	\section{CNN}
-	CNN can be  treated as a encode function $ \Phi (x)$ of receptive field.
 	
-\textit{	\begin{center}
-\includegraphics[width=3in]{./img/depthcol.jpg}
-\end{center}}
-	
-$$ \Phi(x)=f^{l} $$
-$x \in \mathbb{R}^{m \times n} \longrightarrow f \in \mathbb{R}^{d}$
-
-It is sparse (only a few input units contribute to a given output unit) and reuses parameters (the same weights are applied to multiple locations in the input)
 	\section{DeepDCF}
+	
+ The network in this filed utilize pooling to reduce the computation complexity and eliminate the spatial information.
+ So we rebuild the network with zero stride and total small size kernel convnet. We think the resolution in the spatial must be reserved. For the shortcomings of no stride and pooling, we have a small receptive field. So we anlynsis use the DilatedNet.
+	
 	
 target patch: $ x^{l} ,l\in \{ 1,...,d \} $
 idea label: $ y $
@@ -110,8 +137,8 @@ g=\mathfrak{F}^{-1}\left\{ \frac{\sum_{l=1}^{d}\overline{A^{l}} \odot Z^{l}}{B+\
 $$
 
 $$
-g=\mathfrak{F}^{-1}\left\{ \frac{\sum_{l=1}^{d}\overline{A^{l}} \odot Z^{l}}{B+\lambda}\right\}
-=\mathfrak{F}^{-1}\left\{\frac{ \sum_{l=1}^{d}\overline{\overline{Y} \odot X^{l}} \odot Z^{l}}{\sum_{k=1}^{d}\overline{X^{k}} \odot X^{k}+\lambda}\right\}
+g=\mathfrak{F}^{-1}\left\{ \frac{\sum_{l=1}^{d}\overline{A^{l}} \odot Z^{l}}{B+\lambda}\right\} 
+=\mathfrak{F}^{-1}\left\{\frac{ \sum_{l=1}^{d}\overline{\overline{Y} \odot X^{l}} \odot Z^{l}}{\sum_{k=1}^{d}\overline{X^{k}} \odot X^{k}+\lambda}\right\} 
 =\mathfrak{F}^{-1}\left\{\frac{ \sum_{l=1}^{d}(Z^{l} \odot \overline{X^{l}}) \odot Y}{\sum_{k=1}^{d}\overline{X^{k}} \odot X^{k}+\lambda}\right\}
 $$
 
@@ -128,14 +155,14 @@ patience for the backward pass.
 
 First, let's begining with  some fundamental theorems of DFT and Complex-Valued Derivatives.
 
-Because the DFT is a linear opreator, it's gradient is simply the transformation matrix it self. During the back-progation, then, the gradient is conjugated.\cite{rippel2015spectral}
+Because the DFT is a linear opreator, it's gradient is simply the transformation matrix it self. During the back-progation, then, the gradient is conjugated.\cite{SpectralPool}
 
 $$
 Y=\mathfrak{F}\left\{y\right\},\frac{\partial l}{\partial Y} = \mathfrak{F}\left\{\frac{\partial l}{\partial y}\right\}
 $$
 
 
-The second theorem we will use is Complex-Valued Derivatives. \cite{hjorungnes2011complex} Because we need pass $\delta$ throught the frequency domain. We will be more familar with the derivatives operator about complex .
+The second theorem we will use is Complex-Valued Derivatives\cite{Complexderivatives}. Because we need pass $\delta$ throught the frequency domain. We will be more familar with the derivatives operator about complex .
 
 $$
 \frac{\partial f(x,x^{*})}{\partial x}=\overline{\frac{\partial f(x,x^{*})}{\partial x^{*}}}
@@ -166,13 +193,65 @@ $$
 =\mathfrak{F}^{-1} \left\{ \frac{\partial l}{\partial X}\right\}_{uv}^l
 $$
 
-\subsection{Training}
+
+\begin{algorithm}
+\caption{Forward pass: Calculate $y$}
+\begin{algorithmic} 
+\REQUIRE target $x$, search $z$,initlize position $p$,ConvNet $\Phi(\cdot)$
+\RETURN $y$
+
+ \FOR{$i:=1$ \TO $n$}
+ \STATE {crop and feature} 
+  \STATE {detection and update} 
+ \ENDFOR
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\begin{algorithm}
+\caption{Backward propagation: Calculate $\Phi(\cdot)$}
+\begin{algorithmic} 
+\REQUIRE Gradient output$\frac{\partial l}{\partial y}$
+\RETURN Gradient input$\frac{\partial l}{\partial x}$,$\frac{\partial l}{\partial z}$
+
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+\section{Experiments}
 
 I think that is a very perfect visualization of the training process.
 
 \begin{center}
 \includegraphics[width=4in,trim = 0mm 65mm 0mm 65mm, clip]{./img/visual_training.pdf}
 \end{center}
+
+\subsection{Details and Paramemters}
+
+
+\subsection{Baseline Comparison}
+Compare with handcraft feature.
+Compare different vgg(from shallow to deep)
+Compare different receptive field.
+Compare different Network(Alex,VGG,ResNet,tingNet)
+Compare different memory cost for the net struct.
+
+
+\subsection{OTB}
+In this benchmark,we should pay attention to raw results. Even We can training a very deep network like ResNet.
+
+\subsection{VOT}
+In this part, we should pay more attention in speed. 
+
+AR rank 
+(EAO  vs speed)  should be presented.
+
+
+\section{Conclusions}
+We are the first to achieve end-to-end learning in DCF.
 
 \pagebreak		
 \bibliographystyle{plain}
