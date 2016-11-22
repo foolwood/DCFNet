@@ -14,10 +14,10 @@ if ispc()
 else
     trainOpts.gpus = [];
 end
-trainOpts.learningRate = 1e-5;
+trainOpts.learningRate = 1e-4;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 20;
-trainOpts.batchSize = 1;
+trainOpts.batchSize = 10;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
@@ -71,7 +71,6 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-batch = 1;
 if opts.numGpus > 0
     target_cpu = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
     search_cpu = bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean);

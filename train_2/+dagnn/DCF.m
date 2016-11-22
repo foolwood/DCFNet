@@ -53,35 +53,18 @@ classdef DCF < dagnn.ElementWise
             [h,w,c,~] = size(x);
             mn = h*w*c;
             
-            kxxf = sum(xf .* xf_conj, 3) ./ mn;
+            kxxf = sum(xf .* xf_conj, 3) / mn;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda)); 
             
             dldrf = fft2(dldr);
-            dldz = real(ifft2(bsxfun(@times,dldrf.*alphaf,xf_conj)/mn));
-            dldx = real(ifft2((bsxfun(@times,dldrf,...
+            dldz = real(ifft2(-bsxfun(@times,dldrf.*alphaf,xf_conj)/mn));
+%             dldz =[];
+            dldx = real(ifft2(conj(bsxfun(@times,dldrf,...
                 bsxfun(@rdivide,...
                 bsxfun(@times,conj(bsxfun(@times,zf,obj.yf)/mn),kxxf+obj.lambda)-...
                 bsxfun(@times,bsxfun(@times,(sum(zf.*xf_conj,3)/mn),obj.yf),xf_conj/mn),...
                 (kxxf + obj.lambda).*(kxxf + obj.lambda))))));
 %             dldx = [];
-
-% [h,w,c,~] = size(x);
-% xf = fft2(x)/sqrt(w*h);
-% zf = fft2(z)/sqrt(w*h);
-% xf_conj = conj(xf);
-% yf_ = obj.yf/sqrt(w*h);
-% 
-% kxxf = sum(xf .* xf_conj, 3) ./ c;
-% alphaf = bsxfun(@rdivide,yf_,(kxxf + obj.lambda));
-% 
-% dldrf = fft2(dldr)/sqrt(w*h);
-% dldz = real(ifft2(bsxfun(@times,dldrf.*alphaf,xf_conj)/c*sqrt(w*h)));
-% dldx = real(ifft2((bsxfun(@times,dldrf,...
-%     bsxfun(@rdivide,...
-%     bsxfun(@times,conj(bsxfun(@times,zf,yf_)/c),kxxf+obj.lambda)-...
-%     bsxfun(@times,bsxfun(@times,(sum(zf.*xf_conj,3)/c),yf_),xf_conj/c),...
-%     (kxxf + obj.lambda).*(kxxf + obj.lambda))))*sqrt(w*h)));
-
             derInputs{1} = dldx;
             derInputs{2} = dldz;
             derParams = {};
