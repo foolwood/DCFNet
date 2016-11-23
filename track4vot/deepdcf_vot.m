@@ -50,7 +50,7 @@ end
 function [state, location] = deepdcf_initialize(I, region, varargin)
 location = region;
 
-state.net = dagnn.DagNN.loadobj(load('deepdcf_net.mat'));
+state.net = dagnn.DagNN.loadobj(load('vgg16_dcf.mat'));
 state.net.mode = 'test';
 
 state.lambda = 1e-4;
