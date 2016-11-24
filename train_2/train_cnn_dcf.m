@@ -7,7 +7,7 @@ opts.networkType = 'dagnn' ;
 opts.expDir = fullfile('../data', 'vot-vgg-dcf') ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
-opts.lite = false;
+opts.lite = ismac();
 
 if ispc()
     trainOpts.gpus = [1];
