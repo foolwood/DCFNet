@@ -64,7 +64,7 @@ end
 % --------------------------------------------------------------------
 function fn = getBatch(opts)
 % --------------------------------------------------------------------
-bopts = struct('numGpus', numel(opts.train.gpus),'sz', [227,227]) ;
+bopts = struct('numGpus', numel(opts.train.gpus),'sz', [125,125]) ;
 fn = @(x,y) getDagNNBatch(bopts,x,y) ;
 end
 

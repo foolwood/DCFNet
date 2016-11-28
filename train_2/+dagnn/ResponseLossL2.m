@@ -41,7 +41,7 @@ classdef ResponseLossL2 < dagnn.Loss
             subplot(2,2,4);imagesc(loss(:,:,1));colorbar();
             drawnow
             
-            outputs{1} = sum(sum(sum(sum(loss))));
+            outputs{1} = sum(sum(sum(sum(loss))))/size(r,4);
             
             n = obj.numAveraged ;
             m = n + 1 ;

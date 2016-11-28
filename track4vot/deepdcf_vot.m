@@ -59,9 +59,9 @@ end
 state.net = net;
 
 state.lambda = 1e-4;
-state.padding = 1.2;
+state.padding = 1.5;
 state.output_sigma_factor = 0.1; 
-state.interp_factor = 0.02;
+state.interp_factor = 0.05;
 state.output_sigma = sqrt(prod([50,50]))*state.output_sigma_factor;
 
 state.yf = fft2(gaussian_shaped_labels(state.output_sigma, state.net.meta.normalization.imageSize(1:2)));

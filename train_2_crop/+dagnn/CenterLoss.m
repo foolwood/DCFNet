@@ -1,4 +1,4 @@
-classdef CCenterLoss < dagnn.Loss
+classdef CenterLoss < dagnn.Loss
     
     properties
         win_size = [125,125];
@@ -13,10 +13,12 @@ classdef CCenterLoss < dagnn.Loss
             for i = 1:size(delta_yx,1)
                 response = r(:,:,i);
                 [vert_delta, horiz_delta] = find(response == max(response(:)), 1);
-                
-                vert_delta = vert_delta - floor(obj.win_size(1)/2);
-                horiz_delta = horiz_delta - floor(obj.win_size(2)/2);
-                
+                if vert_delta > obj.win_size(1) / 2,  %wrap around to negative half-space of vertical axis
+                    vert_delta = vert_delta - obj.win_size(1);
+                end
+                if horiz_delta > obj.win_size(2) / 2,  %same for horizontal axis
+                    horiz_delta = horiz_delta - obj.win_size(2);
+                end
                 delta_yx_pred = [vert_delta-1, horiz_delta-1];
                 center_loss = center_loss+norm(delta_yx_pred - delta_yx(i,:));
             end
@@ -28,7 +30,7 @@ classdef CCenterLoss < dagnn.Loss
             obj.numAveraged = m ;
         end
         
-        function obj = CCenterLoss(varargin)
+        function obj = CenterLoss(varargin)
             obj.load(varargin) ;
             obj.win_size = obj.win_size;
         end

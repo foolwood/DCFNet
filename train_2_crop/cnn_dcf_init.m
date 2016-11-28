@@ -1,4 +1,4 @@
-function net = cnn_r_init(varargin)
+function net = cnn_dcf_init(varargin)
 % input:
 %       -target :125*125*3*n
 %       -search :125*125*3*n
@@ -9,14 +9,25 @@ rng('default');
 rng(0) ;
 
 net = dagnn.DagNN() ;
+
+%% meta
+net.meta.normalization.imageSize = [125,125,3];
+net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
+
+SampleGenerator = dagnn.SampleGenerator('Ho',125,'Wo',125,'No',12,'padding',1.5,...
+    'averageImage',net.meta.normalization.averageImage,'visual',ismac());
+net.addLayer('SampleGenerator',SampleGenerator,...
+    {'bbox_target','bbox_search','image_target','image_search'},...
+    {'target','search','delta_yx_scaled'});
+
 %% target
 conv1_1 = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv1_1', conv1_1, {'target'}, {'conv1_1'}, {'conv1_1f', 'conv1_1b'}) ;
-net.addLayer('relu1_1', dagnn.ReLU(), {'conv1_1'}, {'conv1_1x'});
+net.addLayer('relu1_1', dagnn.Sigmoid(), {'conv1_1'}, {'conv1_1x'});
 
 conv1_2 = dagnn.Conv('size', [3 3 64 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv1_2', conv1_2, {'conv1_1x'}, {'conv1_2'}, {'conv1_2f', 'conv1_2b'}) ;
-net.addLayer('relu1_2', dagnn.ReLU(), {'conv1_2'}, {'conv1_2x'});
+net.addLayer('relu1_2', dagnn.Sigmoid(), {'conv1_2'}, {'conv1_2x'});
 
 conv2_1 = dagnn.Conv('size', [3 3 64 128], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv2_1', conv2_1, {'conv1_2x'}, {'conv2_1'}, {'conv2_1f', 'conv2_1b'}) ;
@@ -36,16 +47,16 @@ net.addLayer('relu3_2', dagnn.ReLU(), {'conv3_2'}, {'conv3_2x'});
 
 conv3_3 = dagnn.Conv('size', [3 3 256 256], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv3_3', conv3_3, {'conv3_2x'}, {'conv3_3'}, {'conv3_3f', 'conv3_3b'}) ;
-net.addLayer('relu3_3', dagnn.ReLU(), {'conv3_3'}, {'conv3_3x'});
+net.addLayer('relu3_3', dagnn.ReLU(), {'conv3_3'}, {'x'});
 
 %% search
 conv1_1s = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv1_1s', conv1_1s, {'search'}, {'conv1_1s'}, {'conv1_1f', 'conv1_1b'}) ;
-net.addLayer('relu1_1s', dagnn.ReLU(), {'conv1_1s'}, {'conv1_1sx'});
+net.addLayer('relu1_1s', dagnn.Sigmoid(), {'conv1_1s'}, {'conv1_1sx'});
 
 conv1_2s = dagnn.Conv('size', [3 3 64 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv1_2s', conv1_2s, {'conv1_1sx'}, {'conv1_2s'}, {'conv1_2f', 'conv1_2b'}) ;
-net.addLayer('relu1_2s', dagnn.ReLU(), {'conv1_2s'}, {'conv1_2sx'});
+net.addLayer('relu1_2s', dagnn.Sigmoid(), {'conv1_2s'}, {'conv1_2sx'});
 
 conv2_1s = dagnn.Conv('size', [3 3 64 128], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv2_1s', conv2_1s, {'conv1_2sx'}, {'conv2_1s'}, {'conv2_1f', 'conv2_1b'}) ;
@@ -65,40 +76,45 @@ net.addLayer('relu3_2s', dagnn.ReLU(), {'conv3_2s'}, {'conv3_2sx'});
 
 conv3_3s = dagnn.Conv('size', [3 3 256 256], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
 net.addLayer('conv3_3s', conv3_3s, {'conv3_2sx'}, {'conv3_3s'}, {'conv3_3f', 'conv3_3b'}) ;
-net.addLayer('relu3_3s', dagnn.ReLU(), {'conv3_3s'}, {'conv3_3sx'});
+net.addLayer('relu3_3s', dagnn.ReLU(), {'conv3_3s'}, {'z'});
 
 
-%% Concat
-
-net.addLayer('concat' , dagnn.Concat(), {'conv3_3x','conv3_3sx'}, {'conv3_concat'}) ;
-
-conv4_1 = dagnn.Conv('size', [3 3 512 512], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
-net.addLayer('conv4_1', conv4_1, {'conv3_concat'}, {'conv4_1'}, {'conv4_1f', 'conv4_1b'}) ;
-net.addLayer('relu4_1', dagnn.ReLU(), {'conv4_1'}, {'conv4_1x'});
-
-conv4_2 = dagnn.Conv('size', [3 3 512 512], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
-net.addLayer('conv4_2', conv4_2, {'conv4_1x'}, {'conv4_2'}, {'conv4_2f', 'conv4_2b'}) ;
-net.addLayer('relu4_2', dagnn.ReLU(), {'conv4_2'}, {'conv4_2x'});
-
-conv4_3 = dagnn.Conv('size', [3 3 512 1], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
-net.addLayer('conv4_3', conv4_3, {'conv4_2x'}, {'response'}, {'conv4_3f', 'conv4_3b'}) ;
-
+%% dcf 
 window_sz = [125,125];
 target_sz = [50,50];
 sigma = sqrt(prod(target_sz))/10;
+DCF = dagnn.DCF('win_size', window_sz,'sigma',sigma) ;
+net.addLayer('DCF', DCF, {'x','z'}, {'response'}) ;
+% net.addLayer('DCF', DCF, {'conv1_2x','conv1_2sx'}, {'response'}) ;
 
-CResponseLossL1 = dagnn.CResponseLossL1('win_size', window_sz,'sigma',sigma) ;
-net.addLayer('CResponseLossL1', CResponseLossL1, {'response','delta_yx'}, 'objective') ;
+% ResponseLossL1 = dagnn.ResponseLossL1('win_size', window_sz,'sigma',sigma) ;
+% net.addLayer('ResponseLoss', ResponseLossL1, {'response','delta_yx'}, 'objective') ;
 
-CCenterLoss = dagnn.CCenterLoss('win_size', window_sz) ;
-net.addLayer('CCenterLoss', CCenterLoss, {'response','delta_yx'}, 'CLE') ;
+ResponseLossL2 = dagnn.ResponseLossL2('win_size', window_sz,'sigma',sigma) ;
+net.addLayer('ResponseLoss', ResponseLossL2, {'response','delta_yx_scaled'}, 'objective') ;
+
+CenterLoss = dagnn.CenterLoss('win_size', window_sz) ;
+net.addLayer('CenterLoss', CenterLoss, {'response','delta_yx_scaled'}, 'CLE') ;
 
 % Fill in defaul values
 net.initParams();
-
-%% meta
-net.meta.normalization.imageSize = [125,125,3];
-net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
+% vgg16_net = load('../model/imagenet-vgg-verydeep-16.mat') ;
+% vgg16_net = dagnn.DagNN.fromSimpleNN(vgg16_net);
+% net.params(net.getParamIndex('conv1_1f')) = vgg16_net.params(net.getParamIndex('conv1_1f'));
+% net.params(net.getParamIndex('conv1_2f')) = vgg16_net.params(net.getParamIndex('conv1_2f'));
+% net.params(net.getParamIndex('conv2_1f')) = vgg16_net.params(net.getParamIndex('conv2_1f'));
+% net.params(net.getParamIndex('conv2_2f')) = vgg16_net.params(net.getParamIndex('conv2_2f'));
+% net.params(net.getParamIndex('conv3_1f')) = vgg16_net.params(net.getParamIndex('conv3_1f'));
+% net.params(net.getParamIndex('conv3_2f')) = vgg16_net.params(net.getParamIndex('conv3_2f'));
+% net.params(net.getParamIndex('conv3_3f')) = vgg16_net.params(net.getParamIndex('conv3_3f'));
+% 
+% net.params(net.getParamIndex('conv1_1b')) = vgg16_net.params(net.getParamIndex('conv1_1b'));
+% net.params(net.getParamIndex('conv1_2b')) = vgg16_net.params(net.getParamIndex('conv1_2b'));
+% net.params(net.getParamIndex('conv2_1b')) = vgg16_net.params(net.getParamIndex('conv2_1b'));
+% net.params(net.getParamIndex('conv2_2b')) = vgg16_net.params(net.getParamIndex('conv2_2b'));
+% net.params(net.getParamIndex('conv3_1b')) = vgg16_net.params(net.getParamIndex('conv3_1b'));
+% net.params(net.getParamIndex('conv3_2b')) = vgg16_net.params(net.getParamIndex('conv3_2b'));
+% net.params(net.getParamIndex('conv3_3b')) = vgg16_net.params(net.getParamIndex('conv3_3b'));
 
 %% Save
 

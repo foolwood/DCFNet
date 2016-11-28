@@ -1,10 +1,10 @@
-classdef CResponseLossL1 < dagnn.Loss
-%CResponseLossL1  layer
-%  `CResponseLossL1.forward({r, x*})` computes L1 loss.
+classdef ResponseLossL2 < dagnn.Loss
+%ResponseLossL2  layer
+%  `ResponseLossL2.forward({r, x*})` computes L2 loss.
 %
 %  Here the Loss between two matrices is defined as:
 %
-%     Loss = |r - r_idea|
+%     Loss = |r - r_idea|.*|r - r_idea|
 %
 %  Input 
 %       - r    w x h x 1 x N.
@@ -34,13 +34,14 @@ classdef CResponseLossL1 < dagnn.Loss
                 obj.initNY(useGPU);
             end
            
-            loss = abs(r - obj.ny(:,:,1,delta_yx_ind));
+            loss = (r - obj.ny(:,:,1,delta_yx_ind));
+            loss = loss.*loss;
             
             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,delta_yx_ind(1)));
-            subplot(2,2,4);imagesc(loss(:,:,1));
+            subplot(2,2,4);imagesc(loss(:,:,1));colorbar();
             drawnow
             
-            outputs{1} = sum(sum(sum(sum(loss))))/numel(loss);
+            outputs{1} = sum(sum(sum(sum(loss))));
             
             n = obj.numAveraged ;
             m = n + 1 ;
@@ -60,7 +61,7 @@ classdef CResponseLossL1 < dagnn.Loss
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            derInputs = {(derOutputs{1}*2/numel(r))*sign(r - r_idea), []} ;
+            derInputs = {(derOutputs{1}*2)*(r - r_idea), []} ;
             derParams = {} ;
         end
         
@@ -85,9 +86,8 @@ classdef CResponseLossL1 < dagnn.Loss
             obj.ny = [] ;
         end
         
-        function obj = CResponseLossL1(varargin)
+        function obj = ResponseLossL2(varargin)
             obj.load(varargin);
-            obj.loss = 'l1';
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
             obj.ny = [];
@@ -100,5 +100,7 @@ end
 
 function labels = gaussian_shaped_labels(sigma, sz)%kcf
 [rs, cs] = ndgrid((1:sz(1)) - floor(sz(1)/2), (1:sz(2)) - floor(sz(2)/2));
-labels = 100*exp(-0.5 / sigma^2 * (rs.^2 + cs.^2));
+labels = exp(-0.5 / sigma^2 * (rs.^2 + cs.^2));
+labels = circshift(labels, -floor(sz(1:2) / 2) + 1);
+assert(labels(1,1) == 1)
 end

@@ -162,7 +162,29 @@ Y=\mathfrak{F}\left\{y\right\},\frac{\partial l}{\partial Y} = \mathfrak{F}\left
 $$
 
 
-The second theorem we will use is Complex-Valued Derivatives\cite{Complexderivatives}. Because we need pass $\delta$ throught the frequency domain. We will be more familar with the derivatives operator about complex .
+The second theorem we will use is Complex-Valued Derivatives\cite{Complexderivatives}. Because we need pass $\delta$ throught the frequency domain. We will be more familar with the derivatives operator about complex . Two base formula we should revisited.
+
+Let$ z = x + yi \in \mathbb {C} $represent a complex scalar variable, where $ Re(z) = x $and $ Im(z) = y $ . The following four relations hold between the real and imaginary parts of z and its complex conjugate $ z^{*}$ :
+
+\begin{eqnarray*}
+z = x + iy\\
+z^{*} = x - iy\\
+x = \frac{x+x^{*}}{2}\\
+y = \frac{x-x^{*}}{2i}
+\end{eqnarray*}
+
+For complex differentials, these four relations can be formulated as follows:
+
+\begin{eqnarray*}
+dz = dx + idy\\
+dz^{*} = dx - idy\\
+dx = \frac{dx+dx^{*}}{2}\\
+dy = \frac{dx-dx^{*}}{2i}
+\end{eqnarray*}
+
+$$
+\frac{\partial f(x)}{\partial x}
+$$
 
 $$
 \frac{\partial f(x,x^{*})}{\partial x}=\overline{\frac{\partial f(x,x^{*})}{\partial x^{*}}}
@@ -225,9 +247,9 @@ $$
 
 I think that is a very perfect visualization of the training process.
 
-\begin{center}
-\includegraphics[width=4in,trim = 0mm 65mm 0mm 65mm, clip]{./img/visual_training.pdf}
-\end{center}
+%\begin{center}
+%\includegraphics[width=4in,trim = 0mm 65mm 0mm 65mm, clip]{./img/visual_training.pdf}
+%\end{center}
 
 \subsection{Details and Paramemters}
 

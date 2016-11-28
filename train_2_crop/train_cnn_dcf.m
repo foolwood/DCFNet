@@ -1,10 +1,10 @@
-function [net, info] = train_cnn_r(varargin)
+function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.network = [] ;
 opts.networkType = 'dagnn' ;
-opts.expDir = fullfile('../data', 'vot-vgg-r') ;
+opts.expDir = fullfile('../data', 'vot-vgg-dcf') ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = ismac();
@@ -16,7 +16,7 @@ else
 end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 20;
+trainOpts.numEpochs = 50;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
@@ -27,7 +27,7 @@ if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
 % --------------------------------------------------------------------
 
 if isempty(opts.network)
-  net = cnn_r_init() ;
+  net = cnn_dcf_init() ;
 else
   net = opts.network ;
   opts.network = [] ;
@@ -64,25 +64,25 @@ end
 % --------------------------------------------------------------------
 function fn = getBatch(opts)
 % --------------------------------------------------------------------
-bopts = struct('numGpus', numel(opts.train.gpus),'sz', [227,227]) ;
+bopts = struct('numGpus', numel(opts.train.gpus),'sz', [125,125]) ;
 fn = @(x,y) getDagNNBatch(bopts,x,y) ;
 end
 
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-batch = 1;
 if opts.numGpus > 0
-    target_cpu = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
-    search_cpu = bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean);
-    target = gpuArray(target_cpu);
-    search = gpuArray(search_cpu);
-    delta_yx = gpuArray(single(imdb.images.delta_yx(batch,1:2)));
+    target = gpuArray(single(imdb.images.target{batch}));
+    search = gpuArray(single(imdb.images.search{batch}));
+    bbox_target = gpuArray(imdb.images.target_bboxs(batch,:));
+    bbox_search = gpuArray(imdb.images.search_bboxs(batch,:));
 else
-    target = bsxfun(@minus,single(imdb.images.target(:,:,:,batch)),imdb.images.data_mean);
-    search = bsxfun(@minus,single(imdb.images.search(:,:,:,batch)),imdb.images.data_mean);
-    delta_yx = single(imdb.images.delta_yx(batch,1:2));
+    target = single(imdb.images.target{batch});
+    search = single(imdb.images.search{batch});
+    bbox_target = imdb.images.target_bboxs(batch,:);
+    bbox_search = imdb.images.search_bboxs(batch,:);
 end
 
-inputs = {'target', target, 'search', search,'delta_yx',delta_yx} ;
+inputs = {'bbox_target',bbox_target,'bbox_search',bbox_search,...
+    'image_target', target, 'image_search', search} ;
 end
