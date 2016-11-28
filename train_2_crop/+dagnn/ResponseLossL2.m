@@ -37,11 +37,11 @@ classdef ResponseLossL2 < dagnn.Loss
             loss = (r - obj.ny(:,:,1,delta_yx_ind));
             loss = loss.*loss;
             
-            subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,delta_yx_ind(1)));
-            subplot(2,2,4);imagesc(loss(:,:,1));colorbar();
-            drawnow
+%             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,delta_yx_ind(1)));
+%             subplot(2,2,4);imagesc(loss(:,:,1));colorbar();
+%             drawnow
             
-            outputs{1} = sum(sum(sum(sum(loss))));
+            outputs{1} = sum(sum(sum(sum(loss))))/size(r,4);
             
             n = obj.numAveraged ;
             m = n + 1 ;
