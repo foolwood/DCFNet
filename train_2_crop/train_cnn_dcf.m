@@ -10,7 +10,7 @@ opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = ismac();
 
 if ispc()
-    trainOpts.gpus = [1,2];
+    trainOpts.gpus = [1];
 else
     trainOpts.gpus = [];
 end
@@ -72,9 +72,9 @@ end
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
 if opts.numGpus > 0
-    target_cpu = vl_imreadjpeg(imdb.images.target{batch});
+    target_cpu = vl_imreadjpeg(imdb.images.target(batch));
     target = gpuArray(target_cpu{1});
-    search_cpu = vl_imreadjpeg(imdb.images.search{batch});
+    search_cpu = vl_imreadjpeg(imdb.images.search(batch));
     search = gpuArray(search_cpu{1});
     bbox_target = gpuArray(imdb.images.target_bboxs(batch,:));
     bbox_search = gpuArray(imdb.images.search_bboxs(batch,:));

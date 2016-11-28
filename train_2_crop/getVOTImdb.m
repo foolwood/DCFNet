@@ -3,7 +3,7 @@ addpath('../utils');
 opts = [];
 opts.dataDir = '../data';
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
-opts.visualization = true;
+opts.visualization = ismac();
 opts.lite = ismac();
 opts = vl_argparse(opts, varargin);
 imdb = [];
@@ -28,8 +28,8 @@ end
 
 imdb.images.set = set;
 imdb.images.set(randperm(21395,100)) = 2;
-imdb.images.target = cell(numel(set));
-imdb.images.search = cell(numel(set));
+imdb.images.target = cell([numel(set),1]);
+imdb.images.search = cell([numel(set),1]);
 imdb.images.target_bboxs = zeros(numel(set),4,'single');
 imdb.images.search_bboxs = zeros(numel(set),4,'single');
 now_index = 1;
