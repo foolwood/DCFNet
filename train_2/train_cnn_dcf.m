@@ -10,13 +10,13 @@ opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = ismac();
 
 if ispc()
-    trainOpts.gpus = [1];
+    trainOpts.gpus = [2];
 else
     trainOpts.gpus = [];
 end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 50;
+trainOpts.numEpochs = 100;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
