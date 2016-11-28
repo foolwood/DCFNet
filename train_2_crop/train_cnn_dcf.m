@@ -4,7 +4,7 @@ run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.network = [] ;
 opts.networkType = 'dagnn' ;
-opts.expDir = fullfile('../data', 'vot-vgg-dcf') ;
+opts.expDir = fullfile('../data', 'vot-vgg-dcf-crop') ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = ismac();
