@@ -1,10 +1,9 @@
 function imdb = getVOTImdb(varargin)
-rng('default');
 addpath('../utils');
 opts = [];
 opts.dataDir = '../data';
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
-opts.visualization = false;
+opts.visualization = true;
 opts.lite = ismac();
 opts = vl_argparse(opts, varargin);
 imdb = [];
@@ -13,7 +12,7 @@ bbox_mode = 'axis_aligned';
 lite_index = true(21395,1);
 if opts.lite
     lite_index = false(21395,1);
-    lite_index(randperm(21395,100)) = true;
+    lite_index(randperm(21395,1000)) = true;
 end
 
 % -------------------------------------------------------------------------
@@ -46,33 +45,31 @@ for v = 1:numel(videos)
     video = videos{v};fprintf('%3d :%20s\n',v,video);
     [img_files, ground_truth_4xy] = load_video_info_vot(vot16_dataDir, video);
     bbox_gt = get_bbox(ground_truth_4xy);
-    
+    visualization = 1;
     for frame = 1:(numel(img_files)-1)
         if lite_index(now_index)
             
-            im_prev = imread(img_files{frame});
-            im_curr = imread(img_files{frame+1});
-            
-            imdb.images.target{now_index} = im_prev;
-            imdb.images.search{now_index} = im_curr;
+            imdb.images.target{now_index} = img_files{frame};
+            imdb.images.search{now_index} = img_files{frame+1};
             imdb.images.target_bboxs(now_index,:) = bbox_gt(frame,:);
             imdb.images.search_bboxs(now_index,:) = bbox_gt(frame+1,:);
             
             
             if opts.visualization
-                if frame == 1
+                if visualization == 1
+                    visualization = 2;
                     close all
-                    subplot(1,2,1),f_1 = imshow(imdb.images.target{now_index});title('target');
+                    subplot(1,2,1),f_1 = imshow(imread(imdb.images.target{now_index}));title('target');
                     f_3 = rectangle('Position',[imdb.images.target_bboxs(now_index,[1,2])+1,...
                         imdb.images.target_bboxs(now_index,[3,4])-imdb.images.target_bboxs(now_index,[1,2])]);
-                    subplot(1,2,2),f_2 = imshow(imdb.images.search{now_index});hold on ;
+                    subplot(1,2,2),f_2 = imshow(imread(imdb.images.search{now_index}));hold on ;
                     f_4 = rectangle('Position',[imdb.images.search_bboxs(now_index,[1,2])+1,...
                         imdb.images.search_bboxs(now_index,[3,4])-imdb.images.search_bboxs(now_index,[1,2])]);
                     title('search');
                     drawnow;
                 else
-                    f_1.set('CData',imdb.images.target{now_index});
-                    f_2.set('CData',imdb.images.search{now_index});
+                    f_1.set('CData',imread(imdb.images.target{now_index}));
+                    f_2.set('CData',imread(imdb.images.search{now_index}));
                     f_3.set('Position',[imdb.images.target_bboxs(now_index,[1,2])+1,...
                         imdb.images.target_bboxs(now_index,[3,4])-imdb.images.target_bboxs(now_index,[1,2])]);
                     f_4.set('Position',[imdb.images.search_bboxs(now_index,[1,2])+1,...
