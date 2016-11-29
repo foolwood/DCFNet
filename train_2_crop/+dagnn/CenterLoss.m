@@ -4,11 +4,6 @@ classdef CenterLoss < dagnn.Loss
         win_size = [125,125];
     end
     
-    properties (Transient)
-        average = 0
-        numAveraged = 0
-    end
-    
     methods
         function outputs = forward(obj, inputs, params)
             r = inputs{1};

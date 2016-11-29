@@ -17,8 +17,6 @@ classdef ResponseLossL2 < dagnn.Loss
     end
     properties (Transient)
         ny = [];
-        average = 0;
-        numAveraged = 0;
     end
 
     methods
