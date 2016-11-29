@@ -17,7 +17,10 @@ classdef ResponseLossL2 < dagnn.Loss
     end
     properties (Transient)
         ny = [];
+        average = 0;
+        numAveraged = 0;
     end
+
     methods
         function outputs = forward(obj, inputs, params)
             assert(numel(inputs) == 2, 'two inputs are needed');
@@ -40,8 +43,16 @@ classdef ResponseLossL2 < dagnn.Loss
 %             subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,delta_yx_ind(1)));
 %             subplot(2,2,4);imagesc(loss(:,:,1));colorbar();
 %             drawnow
+
+%             figure(2);
+%             for i = 1:size(r,4)
+%                 subplot(4,size(r,4)/4,i);imagesc(r(:,:,i));hold on;
+%                 plot(delta_x(i),delta_y(i),'r*');
+%             end
+%             drawnow;
             
-            outputs{1} = sum(sum(sum(sum(loss))))/size(r,4);
+            
+            outputs{1} = sum(loss(:))/size(r,4);
             
             n = obj.numAveraged ;
             m = n + 1 ;
@@ -61,7 +72,7 @@ classdef ResponseLossL2 < dagnn.Loss
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,1,delta_yx_ind);
             
-            derInputs = {(derOutputs{1}*2)*(r - r_idea), []} ;
+            derInputs = {(derOutputs{1}*2/size(r,4))*(r - r_idea), []} ;
             derParams = {} ;
         end
         
@@ -84,6 +95,8 @@ classdef ResponseLossL2 < dagnn.Loss
         
         function obj = reset(obj)
             obj.ny = [] ;
+            obj.average = 0 ;
+            obj.numAveraged = 0 ;
         end
         
         function obj = ResponseLossL2(varargin)
