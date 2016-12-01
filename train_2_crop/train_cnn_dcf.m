@@ -12,7 +12,7 @@ opts.lite = ismac();
 
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 1;
+trainOpts.numEpochs = 100;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
@@ -57,7 +57,6 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-batch = 1;
 if opts.numGpus > 0
     target_gpu = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32,'GPU');
     target = target_gpu{1};
