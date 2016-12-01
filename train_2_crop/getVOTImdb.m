@@ -12,7 +12,7 @@ bbox_mode = 'axis_aligned';
 lite_index = true(21395,1);
 if opts.lite
     lite_index = false(21395,1);
-    lite_index(randperm(21395,1000)) = true;
+    lite_index(randperm(21395,500)) = true;
 end
 
 % -------------------------------------------------------------------------
