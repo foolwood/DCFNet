@@ -4,25 +4,20 @@ run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.networkType = 1;
 opts.lossType = 1;
-
 opts.expDir = fullfile('../data',...
     ['vot2016-' num2str(opts.networkType) '-' num2str(opts.lossType) '-DCFNet']) ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = ismac();
 
-if ispc()
-    trainOpts.gpus = [1];
-else
-    trainOpts.gpus = [];
-end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 1;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
-if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
+if ~isfield(opts.train, 'gpus')&& ispc(), opts.train.gpus = [1];
+else opts.train.gpus = []; end
 
 % --------------------------------------------------------------------
 %                                                 Prepare net and data
@@ -62,17 +57,18 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
+batch = 1;
 if opts.numGpus > 0
-    target_cpu = vl_imreadjpeg(imdb.images.target(batch));
-    target = gpuArray(target_cpu{1});
-    search_cpu = vl_imreadjpeg(imdb.images.search(batch));
-    search = gpuArray(search_cpu{1});
+    target_gpu = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32,'GPU');
+    target = target_gpu{1};
+    search_gpu = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32,'GPU');
+    search = search_gpu{1};
     bbox_target = gpuArray(imdb.images.target_bboxs(batch,:));
     bbox_search = gpuArray(imdb.images.search_bboxs(batch,:));
 else
-    target_cpu = vl_imreadjpeg(imdb.images.target(batch));
+    target_cpu = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32);
     target = target_cpu{1};
-    search_cpu = vl_imreadjpeg(imdb.images.search(batch));
+    search_cpu = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32);
     search = search_cpu{1};
     bbox_target = imdb.images.target_bboxs(batch,:);
     bbox_search = imdb.images.search_bboxs(batch,:);
