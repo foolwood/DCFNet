@@ -2,7 +2,7 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.networkType = 1;
+opts.networkType = 2;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['vot2016-' num2str(opts.networkType) '-' num2str(opts.lossType) '-DCFNet']) ;
@@ -14,6 +14,7 @@ trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 100;
 trainOpts.batchSize = 1;
+trainOpts.momentum = 0.9;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus')&& ispc(), opts.train.gpus = [1];
@@ -57,6 +58,7 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
+batch = 1;
 if opts.numGpus > 0
     target_gpu = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32,'GPU');
     target = target_gpu{1};
@@ -72,6 +74,12 @@ else
     bbox_target = imdb.images.target_bboxs(batch,:);
     bbox_search = imdb.images.search_bboxs(batch,:);
 end
+
+% target_cpu = vl_imreadjpeg(imdb.images.target(1),'NumThreads',32);
+% target = target_cpu{1};
+% search = target;
+% bbox_target = imdb.images.target_bboxs(batch,:);
+% bbox_search = bbox_target;
 
 % bbox2rect = @(x) ([x(1)+1,x(2)+1,x(3)-x(1),x(4)-x(2)]);
 % subplot(1,2,1);imshow(uint8(target));rectangle('Position',bbox2rect(bbox_target));

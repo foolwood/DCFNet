@@ -14,20 +14,14 @@ classdef DCF < dagnn.ElementWise
     end
     methods
         function outputs = forward(obj, inputs, params)
-            assert(numel(inputs) == 2, 'two inputs are needed');
             
-            x = inputs{1}; % target region
-            z = inputs{2}; % search region
-            xf = fft2(x);
-            zf = fft2(z);
+            xf = fft2(inputs{1});% target region
+            zf = fft2(inputs{2});% search region
             xf_conj = conj(xf);
-            [h,w,c,~] = size(x);
+            [h,w,c,~] = size(xf);
             mn = h*w*c;
             
-            assert(ndims(z) == ndims(x), 'z and x have same number of dimensions');
-            assert(all(size(z) == size(x)), 'z and x have same size');
-            
-            useGPU = isa(x, 'gpuArray');
+            useGPU = isa(xf, 'gpuArray');
             if isempty(obj.yf)
                 obj.initYF(useGPU);
             end
@@ -39,24 +33,18 @@ classdef DCF < dagnn.ElementWise
         end
         
         function [derInputs, derParams] = backward(obj, inputs, params, derOutputs)
-            assert(numel(inputs) == 2, 'two inputs are needed');
-            assert(numel(derOutputs) == 1, 'only one gradient should be flowing in this layer (dldy)');
             
-            dldr = derOutputs{1};
-            
-            x = inputs{1}; % target region
-            z = inputs{2}; % search region
-            xf = fft2(x);
-            zf = fft2(z);
+            dldrf = fft2(derOutputs{1}); 
+            xf = fft2(inputs{1});% target region
+            zf = fft2(inputs{2});% search region
             xf_conj = conj(xf);
             
-            [h,w,c,~] = size(x);
+            [h,w,c,~] = size(xf);
             mn = h*w*c;
             
-            kxxf = sum(xf .* xf_conj, 3) / mn;
+            kxxf = sum(xf .* xf_conj, 3) ./ mn;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda));
             
-            dldrf = fft2(dldr);    
             dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/mn));
             dldx = real(ifft2(bsxfun(@times,dldrf,...
                 bsxfun(@rdivide,...
