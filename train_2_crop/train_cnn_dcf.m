@@ -2,9 +2,11 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.network = [] ;
-opts.networkType = 'dagnn' ;
-opts.expDir = fullfile('../data', 'vot-vgg-dcf-crop') ;
+opts.networkType = 1;
+opts.lossType = 1;
+
+opts.expDir = fullfile('../data',...
+    ['vot2016-' num2str(opts.networkType) '-' num2str(opts.lossType) '-DCFNet']) ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = ismac();
@@ -16,22 +18,16 @@ else
 end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 50;
+trainOpts.numEpochs = 1;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus'), opts.train.gpus = []; end;
 
 % --------------------------------------------------------------------
-%                                                         Prepare data
+%                                                 Prepare net and data
 % --------------------------------------------------------------------
-
-if isempty(opts.network)
-  net = cnn_dcf_init() ;
-else
-  net = opts.network ;
-  opts.network = [] ;
-end
+net = cnn_dcf_init(opts.networkType, opts.lossType);
 
 if exist(opts.imdbPath, 'file')
   imdb = load(opts.imdbPath) ;
@@ -45,12 +41,7 @@ end
 %                                                                Train
 % --------------------------------------------------------------------
 
-switch opts.networkType
-  case 'simplenn', trainfn = @cnn_train ;
-  case 'dagnn', trainfn = @cnn_train_dag ;
-end
-
-[net, info] = trainfn(net, imdb, getBatch(opts), ...
+[net, info] = cnn_train_dag(net, imdb, getBatch(opts), ...
   'expDir', opts.expDir, ...
   opts.train, ...
   'val', find(imdb.images.set == 2)) ;

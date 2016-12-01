@@ -3,12 +3,12 @@ function deepdcf_vot
 % *************************************************************
 % VOT: Always call exit command at the end to terminate Matlab!
 % *************************************************************
-% cleanup = onCleanup(@() exit() );
+cleanup = onCleanup(@() exit() );
 
 % *************************************************************
 % VOT: Set random seed to a different value every time.
 % *************************************************************
-% RandStream.setGlobalStream(RandStream('mt19937ar', 'Seed', sum(clock)));
+RandStream.setGlobalStream(RandStream('mt19937ar', 'Seed', sum(clock)));
 
 % **********************************
 % VOT: Get initialization data

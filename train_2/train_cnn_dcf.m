@@ -16,7 +16,7 @@ else
 end
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 100;
+trainOpts.numEpochs = 60;
 trainOpts.batchSize = 1;
 opts.train = trainOpts;
 

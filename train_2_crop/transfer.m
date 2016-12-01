@@ -76,9 +76,9 @@ net.layers{14} = struct(...
     'name', 'relu3_3', ...
     'type', 'relu') ;
 
-save('../track4vot/simplenn_vgg_deepdcfnet.mat','net');
+save('./simplenn_vgg_deepdcfnet.mat','net');
 ccc
-net = load('../track4vot/simplenn_vgg_deepdcfnet.mat');
+net = load('./simplenn_vgg_deepdcfnet.mat');
 net = vl_simplenn_tidy(net.net) ;
 res = vl_simplenn(net, rand(125,125,3,'single')) ;
 
