@@ -61,11 +61,13 @@ state.net = net;
 state.lambda = 1e-4;
 state.padding = 1.5;
 state.output_sigma_factor = 0.1; 
-state.interp_factor = 0.05;
+state.interp_factor = 0.02;
 state.output_sigma = sqrt(prod([50,50]))*state.output_sigma_factor;
 
 state.yf = fft2(gaussian_shaped_labels(state.output_sigma, state.net.meta.normalization.imageSize(1:2)));
 if state.gpu,state.yf = gpuArray(state.yf);end    %gpuSupport
+state.cos_window = hann(size(state.yf,1)) * hann(size(state.yf,2))';
+if state.gpu,state.cos_window = gpuArray(single(state.cos_window));end    %gpuSupport
 
 state.pos = floor(region([2,1])+region([4,3])/2);
 state.target_sz = region([4,3]);
@@ -77,7 +79,7 @@ if state.gpu,patch= gpuArray(patch);end    %gpuSupport
 
 target = bsxfun(@minus,patch,state.net.meta.normalization.averageImage);
 res = vl_simplenn(state.net,target,[],[],'mode','test','conserveMemory',true);
-xf = fft2(res(end).x);
+xf = fft2(bsxfun(@times,res(end).x,state.cos_window));
 
 kf = sum(xf.*conj(xf),3)/numel(xf);
 state.model_alphaf = state.yf ./ (kf + state.lambda);
@@ -103,7 +105,7 @@ if state.gpu,patch_crop= gpuArray(patch_crop);end    %gpuSupport
 search = bsxfun(@minus,patch_crop,state.net.meta.normalization.averageImage);
 
 res = vl_simplenn(state.net, search,[],[],'mode','test','conserveMemory',true);
-zf = fft2(res(end).x);
+zf = fft2(bsxfun(@times,res(end).x,state.cos_window));
 
 kzf = sum(zf.*conj(state.model_xf),3)/numel(zf);
 
@@ -126,7 +128,7 @@ if state.gpu,patch= gpuArray(patch);end    %gpuSupport
 target = bsxfun(@minus,patch,state.net.meta.normalization.averageImage);
 
 res = vl_simplenn(state.net, target,[],[],'mode','test','conserveMemory',true);
-xf = fft2(res(end).x);
+xf = fft2(bsxfun(@times,res(end).x,state.cos_window));
 kf = sum(xf.*conj(xf),3)/numel(xf);
 alphaf = state.yf ./ (kf + state.lambda);   %equation for fast training
 
