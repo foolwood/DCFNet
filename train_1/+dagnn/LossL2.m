@@ -15,10 +15,7 @@ classdef LossL2 < dagnn.Loss
 
 methods
     function outputs = forward(obj, inputs, params)
-
-%         subplot(1,2,1);imagesc(inputs{1}(:,:,1,1));
-%         subplot(1,2,2);imagesc(inputs{2}(:,:,1,1));
-%         drawnow;
+        
         delta = inputs{1} - inputs{2} ;
         l2Delta = (delta.*delta) ;
 
@@ -37,8 +34,7 @@ methods
         %  f'(x) = 2x
         %
 
-        delta = (2/numel(inputs{1}))*(inputs{1} - inputs{2}) ;
-        derInputs = {delta .* derOutputs{1}, []} ;
+        derInputs = {(inputs{1} - inputs{2}) .* (derOutputs{1}*2/numel(inputs{1})), []} ;
         derParams = {} ;
     end
 
