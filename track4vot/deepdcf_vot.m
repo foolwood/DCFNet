@@ -3,7 +3,7 @@ function deepdcf_vot
 % *************************************************************
 % VOT: Always call exit command at the end to terminate Matlab!
 % *************************************************************
-cleanup = onCleanup(@() exit() );
+% cleanup = onCleanup(@() exit() );
 
 % *************************************************************
 % VOT: Set random seed to a different value every time.
@@ -43,7 +43,7 @@ end;
 % **********************************
 % VOT: Output the results
 % **********************************
-handle.quit(handle);
+% handle.quit(handle);
 
 end
 
@@ -79,7 +79,10 @@ if state.gpu,patch= gpuArray(patch);end    %gpuSupport
 
 target = bsxfun(@minus,patch,state.net.meta.normalization.averageImage);
 res = vl_simplenn(state.net,target,[],[],'mode','test','conserveMemory',true);
-xf = fft2(bsxfun(@times,res(end).x,state.cos_window));
+mask = zeros(125,125);
+mask(63-25:63+25,63-25:63+25) = ones(51,51);
+state.feature_valid_index = is_valid(res(end).x,mask);
+xf = fft2(bsxfun(@times,res(end).x(:,:,state.feature_valid_index),state.cos_window));
 
 kf = sum(xf.*conj(xf),3)/numel(xf);
 state.model_alphaf = state.yf ./ (kf + state.lambda);
@@ -105,7 +108,7 @@ if state.gpu,patch_crop= gpuArray(patch_crop);end    %gpuSupport
 search = bsxfun(@minus,patch_crop,state.net.meta.normalization.averageImage);
 
 res = vl_simplenn(state.net, search,[],[],'mode','test','conserveMemory',true);
-zf = fft2(bsxfun(@times,res(end).x,state.cos_window));
+zf = fft2(bsxfun(@times,res(end).x(:,:,state.feature_valid_index),state.cos_window));
 
 kzf = sum(zf.*conj(state.model_xf),3)/numel(zf);
 
@@ -128,7 +131,7 @@ if state.gpu,patch= gpuArray(patch);end    %gpuSupport
 target = bsxfun(@minus,patch,state.net.meta.normalization.averageImage);
 
 res = vl_simplenn(state.net, target,[],[],'mode','test','conserveMemory',true);
-xf = fft2(bsxfun(@times,res(end).x,state.cos_window));
+xf = fft2(bsxfun(@times,res(end).x(:,:,state.feature_valid_index),state.cos_window));
 kf = sum(xf.*conj(xf),3)/numel(xf);
 alphaf = state.yf ./ (kf + state.lambda);   %equation for fast training
 
@@ -159,7 +162,32 @@ set(h,'AlphaData',gather(response)+0.35);
 end
 
 
+function feature_valid_index = is_valid(res,mask)
+res = reshape(res,[],size(res,3));
+mask = reshape(mask,[],1);
+feature_valid_index = sum(bsxfun(@times,res,mask))>(2601/15625)*sum(res);
+end
 
+
+function labels = gaussian_shaped_labels(sigma, sz)
+[rs, cs] = ndgrid((1:sz(1)) - floor(sz(1)/2), (1:sz(2)) - floor(sz(2)/2));
+labels = exp(-0.5 / sigma^2 * (rs.^2 + cs.^2));
+labels = circshift(labels, -floor(sz(1:2) / 2) + 1);
+assert(labels(1,1) == 1)
+end
+
+function out = get_subwindow(im, pos, sz)
+if isscalar(sz),  %square sub-window
+    sz = [sz, sz];
+end
+xs = floor(pos(2)) + (1:sz(2)) - floor(sz(2)/2);
+ys = floor(pos(1)) + (1:sz(1)) - floor(sz(1)/2);
+xs(xs < 1) = 1;
+ys(ys < 1) = 1;
+xs(xs > size(im,2)) = size(im,2);
+ys(ys > size(im,1)) = size(im,1);
+out = im(ys, xs, :);
+end
 
 
 

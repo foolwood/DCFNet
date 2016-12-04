@@ -17,7 +17,7 @@ end
 normalized_sz = net.meta.normalization.imageSize(1:2);
 averageImage = net.meta.normalization.averageImage;
 lambda = 1e-4;
-padding = 1.2;
+padding = 1.5;
 output_sigma_factor = 0.1;
 interp_factor = 0.02;
 output_sigma = sqrt(prod([50,50]))*output_sigma_factor;
