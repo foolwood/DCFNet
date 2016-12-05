@@ -12,7 +12,7 @@ opts.lite = false;
 
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 20;
+trainOpts.numEpochs = 10;
 trainOpts.batchSize = 1;
 trainOpts.momentum = 0.9;
 opts.train = trainOpts;
