@@ -3,7 +3,7 @@ addpath('../utils');
 opts = [];
 opts.dataDir = '../data';
 opts.vot16_dataDir = fullfile(opts.dataDir,'VOT16');
-opts.visualization = ismac();
+opts.visualization = false;
 opts.lite = ismac();
 opts = vl_argparse(opts, varargin);
 imdb = [];

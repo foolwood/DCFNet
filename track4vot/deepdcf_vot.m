@@ -79,10 +79,7 @@ if state.gpu,patch= gpuArray(patch);end    %gpuSupport
 
 target = bsxfun(@minus,patch,state.net.meta.normalization.averageImage);
 res = vl_simplenn(state.net,target,[],[],'mode','test','conserveMemory',true);
-mask = zeros(125,125);
-mask(63-25:63+25,63-25:63+25) = ones(51,51);
-state.feature_valid_index = is_valid(res(end).x,mask);
-xf = fft2(bsxfun(@times,res(end).x(:,:,state.feature_valid_index),state.cos_window));
+xf = fft2(bsxfun(@times,res(end).x,state.cos_window));
 
 kf = sum(xf.*conj(xf),3)/numel(xf);
 state.model_alphaf = state.yf ./ (kf + state.lambda);
@@ -108,7 +105,7 @@ if state.gpu,patch_crop= gpuArray(patch_crop);end    %gpuSupport
 search = bsxfun(@minus,patch_crop,state.net.meta.normalization.averageImage);
 
 res = vl_simplenn(state.net, search,[],[],'mode','test','conserveMemory',true);
-zf = fft2(bsxfun(@times,res(end).x(:,:,state.feature_valid_index),state.cos_window));
+zf = fft2(bsxfun(@times,res(end).x,state.cos_window));
 
 kzf = sum(zf.*conj(state.model_xf),3)/numel(zf);
 
@@ -131,7 +128,7 @@ if state.gpu,patch= gpuArray(patch);end    %gpuSupport
 target = bsxfun(@minus,patch,state.net.meta.normalization.averageImage);
 
 res = vl_simplenn(state.net, target,[],[],'mode','test','conserveMemory',true);
-xf = fft2(bsxfun(@times,res(end).x(:,:,state.feature_valid_index),state.cos_window));
+xf = fft2(bsxfun(@times,res(end).x,state.cos_window));
 kf = sum(xf.*conj(xf),3)/numel(xf);
 alphaf = state.yf ./ (kf + state.lambda);   %equation for fast training
 

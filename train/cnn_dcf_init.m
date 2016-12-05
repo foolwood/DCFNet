@@ -30,8 +30,7 @@ if networkType == 1
     
     conv1_2 = dagnn.Conv('size', [3 3 64 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv1_2', conv1_2, {'conv1_1x'}, {'conv1_2'}, {'conv1_2f', 'conv1_2b'}) ;
-    net.addLayer('relu1_2', dagnn.Sigmoid(), {'conv1_2'}, {'conv1_2x'});
-    net.addLayer('norm1', dagnn.SpatialNorm(), {'conv1_2x'}, {'x'});
+    net.addLayer('norm1', dagnn.SpatialNorm('param',[4 4 1 2]), {'conv1_2'}, {'x'});
     
     %% search
     conv1_1s = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
@@ -40,8 +39,7 @@ if networkType == 1
     
     conv1_2s = dagnn.Conv('size', [3 3 64 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv1_2s', conv1_2s, {'conv1_1sx'}, {'conv1_2s'}, {'conv1_2f', 'conv1_2b'}) ;
-    net.addLayer('relu1_2s', dagnn.Sigmoid(), {'conv1_2s'}, {'conv1_2sx'});
-    net.addLayer('norm2', dagnn.SpatialNorm(), {'conv1_2sx'}, {'z'});
+    net.addLayer('norm2', dagnn.SpatialNorm('param',[4 4 1 2]), {'conv1_2s'}, {'z'});
 elseif networkType == 2
     %% target
     conv1_1 = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;

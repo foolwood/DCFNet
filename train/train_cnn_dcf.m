@@ -8,11 +8,11 @@ opts.expDir = fullfile('../data',...
     ['vot2016-' num2str(opts.networkType) '-' num2str(opts.lossType) '-DCFNet']) ;
 opts.dataDir = fullfile('../data', 'vot16') ;
 opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
-opts.lite = ismac();
+opts.lite = false;
 
 trainOpts.learningRate = 1e-5;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 100;
+trainOpts.numEpochs = 20;
 trainOpts.batchSize = 1;
 trainOpts.momentum = 0.9;
 opts.train = trainOpts;
