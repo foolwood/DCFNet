@@ -58,7 +58,6 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-% batch = 1;
 if opts.numGpus > 0
     target_gpu = vl_imreadjpeg(imdb.images.target(batch),'GPU');
     target = target_gpu{1};

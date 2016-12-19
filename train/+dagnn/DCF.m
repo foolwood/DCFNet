@@ -45,15 +45,9 @@ classdef DCF < dagnn.ElementWise
             kxxf = sum(xf .* xf_conj, 3) ./ hwc;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda));
             
-            dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/hwc));
-%             dldx = real(ifft2(bsxfun(@times,dldrf,...
-%                 bsxfun(@rdivide,...
-%                 1*bsxfun(@times,bsxfun(@times,zf,obj.yf)/mn,kxxf+obj.lambda)-...
-%                 1*bsxfun(@times,bsxfun(@times,sum(zf.*xf_conj,3)/mn,obj.yf),xf_conj/mn),...
-%                 (kxxf + obj.lambda).*(kxxf + obj.lambda)))));
-%             dldx = real(ifft2(bsxfun(@times,dldrf,...
-%             bsxfun(@times,zf,alphaf)/mn)));
             dldx = [];
+            dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/hwc));
+            
             derInputs{1} = dldx;
             derInputs{2} = dldz;
             derParams = {};
@@ -61,7 +55,7 @@ classdef DCF < dagnn.ElementWise
         
         function initYF(obj, useGPU)
             yf_ = single(fft2(gaussian_shaped_labels(obj.sigma, obj.win_size)));
-            lambda_ = single(gather(obj.lambda));
+            lambda_ = gather(obj.lambda);
             if useGPU
                 obj.yf = gpuArray(yf_);
                 obj.lambda = gpuArray(lambda_);

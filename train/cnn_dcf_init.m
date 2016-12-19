@@ -14,8 +14,8 @@ net = dagnn.DagNN() ;
 net.meta.normalization.imageSize = [125,125,3];
 net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
 
-SampleGenerator = dagnn.SampleGenerator('Ho',125,'Wo',125,'No',12,'padding',1.5,...
-    'averageImage',net.meta.normalization.averageImage,'visual',ismac());
+SampleGenerator = dagnn.SampleGenerator('Ho',125,'Wo',125,'No',1,'padding',1.5,...
+    'averageImage',net.meta.normalization.averageImage,'visual',false);
 net.addLayer('SampleGenerator',SampleGenerator,...
     {'bbox_target','bbox_search','image_target','image_search'},...
     {'target','search','delta_yx_scaled'});
@@ -29,7 +29,7 @@ if networkType == 1
     
     conv1_2 = dagnn.Conv('size', [3 3 64 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv1_2', conv1_2, {'conv1_1x'}, {'conv1_2'}, {'conv1_2f', 'conv1_2b'}) ;
-    net.addLayer('norm1', dagnn.SpatialNorm('param',[125 125 1/(125*125) 2]), {'conv1_2'}, {'x'});
+    net.addLayer('norm1', dagnn.SpatialNorm('param',[25 25 1/(25*25) 2]), {'conv1_2'}, {'x'});
     
     %% search
     conv1_1s = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
@@ -38,7 +38,7 @@ if networkType == 1
     
     conv1_2s = dagnn.Conv('size', [3 3 64 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv1_2s', conv1_2s, {'conv1_1sx'}, {'conv1_2s'}, {'conv1_2f', 'conv1_2b'}) ;
-    net.addLayer('norm2', dagnn.SpatialNorm('param',[125 125 1/(125*125) 2]), {'conv1_2s'}, {'z'});
+    net.addLayer('norm2', dagnn.SpatialNorm('param',[25 25 1/(25*25) 2]), {'conv1_2s'}, {'z'});
 elseif networkType == 2
     %% target
     conv1_1 = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
@@ -55,7 +55,7 @@ elseif networkType == 2
     
     conv2_2 = dagnn.Conv('size', [3 3 128 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2_2', conv2_2, {'conv2_1x'}, {'conv2_2'}, {'conv2_2f', 'conv2_2b'}) ;
-    net.addLayer('norm1', dagnn.SpatialNorm('param',[125 125 1/(125*125) 2]), {'conv2_2'}, {'x'});
+    net.addLayer('norm1', dagnn.SpatialNorm('param',[25 25 1/(25*25) 2]), {'conv2_2'}, {'x'});
     
     %% search
     conv1_1s = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
@@ -72,7 +72,7 @@ elseif networkType == 2
     
     conv2_2s = dagnn.Conv('size', [3 3 128 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2_2s', conv2_2s, {'conv2_1sx'}, {'conv2_2s'}, {'conv2_2f', 'conv2_2b'}) ;
-    net.addLayer('norm2', dagnn.SpatialNorm('param',[125 125 1/(125*125) 2]), {'conv2_2s'}, {'z'});
+    net.addLayer('norm2', dagnn.SpatialNorm('param',[25 25 1/(25*25) 2]), {'conv2_2s'}, {'z'});
 else
     %% target
     conv1_1 = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
@@ -101,7 +101,7 @@ else
     
     conv3_3 = dagnn.Conv('size', [3 3 256 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv3_3', conv3_3, {'conv3_2x'}, {'conv3_3'}, {'conv3_3f', 'conv3_3b'}) ;
-    net.addLayer('norm1', dagnn.SpatialNorm('param',[125 125 1/(125*125) 2]), {'conv3_3'}, {'x'});
+    net.addLayer('norm1', dagnn.SpatialNorm('param',[25 25 1/(25*25) 2]), {'conv3_3'}, {'x'});
     
     %% search
     conv1_1s = dagnn.Conv('size', [3 3 3 64], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
@@ -130,7 +130,7 @@ else
     
     conv3_3s = dagnn.Conv('size', [3 3 256 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv3_3s', conv3_3s, {'conv3_2sx'}, {'conv3_3s'}, {'conv3_3f', 'conv3_3b'}) ;
-    net.addLayer('norm2', dagnn.SpatialNorm('param',[125 125 1/(125*125) 2]), {'conv3_3s'}, {'z'});
+    net.addLayer('norm2', dagnn.SpatialNorm('param',[25 25 1/(25*25) 2]), {'conv3_3s'}, {'z'});
 end
 
 %% dcf
