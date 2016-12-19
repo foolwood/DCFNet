@@ -24,9 +24,10 @@ classdef ResponseLossL2 < dagnn.Loss
             assert(numel(inputs) == 2, 'two inputs are needed');
             r = inputs{1}; % r
             
-            delta_yx = inputs{2}; % delta_xy
-            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
+            delta_yx = inputs{2}; % delta_yx
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
+            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
+            
             
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
             
@@ -63,9 +64,9 @@ classdef ResponseLossL2 < dagnn.Loss
             assert(numel(inputs) == 2, 'two inputs are needed');
             r = inputs{1}; % r
             
-            delta_yx = inputs{2}; % delta_xy
-            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
+            delta_yx = inputs{2}; % delta_yx
             delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
+            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
             
             delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
             r_idea = obj.ny(:,:,1,delta_yx_ind);

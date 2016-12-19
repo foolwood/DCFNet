@@ -19,16 +19,16 @@ classdef DCF < dagnn.ElementWise
             zf = fft2(inputs{2});% search region
             xf_conj = conj(xf);
             [h,w,c,~] = size(xf);
-            mn = h*w*c;
+            hwc = h*w*c;
             
             useGPU = isa(xf, 'gpuArray');
             if isempty(obj.yf)
                 obj.initYF(useGPU);
             end
             
-            kxxf = sum(xf .* xf_conj, 3) ./ mn;
-            alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda));
-            kzxf = sum(zf .* xf_conj, 3) ./ mn;
+            kxxf = sum(xf .* xf_conj, 3) ./ hwc;
+            alphaf = bsxfun(@rdivide, obj.yf, (kxxf + obj.lambda));
+            kzxf = sum(zf .* xf_conj, 3) ./ hwc;
             outputs{1} = real(ifft2(alphaf .* kzxf));
         end
         
@@ -40,12 +40,12 @@ classdef DCF < dagnn.ElementWise
             xf_conj = conj(xf);
             
             [h,w,c,~] = size(xf);
-            mn = h*w*c;
+            hwc = h*w*c;
             
-            kxxf = sum(xf .* xf_conj, 3) ./ mn;
+            kxxf = sum(xf .* xf_conj, 3) ./ hwc;
             alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda));
             
-            dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/mn));
+            dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/hwc));
 %             dldx = real(ifft2(bsxfun(@times,dldrf,...
 %                 bsxfun(@rdivide,...
 %                 1*bsxfun(@times,bsxfun(@times,zf,obj.yf)/mn,kxxf+obj.lambda)-...
@@ -53,7 +53,7 @@ classdef DCF < dagnn.ElementWise
 %                 (kxxf + obj.lambda).*(kxxf + obj.lambda)))));
 %             dldx = real(ifft2(bsxfun(@times,dldrf,...
 %             bsxfun(@times,zf,alphaf)/mn)));
-           dldx = [];
+            dldx = [];
             derInputs{1} = dldx;
             derInputs{2} = dldz;
             derParams = {};
@@ -61,7 +61,7 @@ classdef DCF < dagnn.ElementWise
         
         function initYF(obj, useGPU)
             yf_ = single(fft2(gaussian_shaped_labels(obj.sigma, obj.win_size)));
-            lambda_ = 1e-4;
+            lambda_ = single(gather(obj.lambda));
             if useGPU
                 obj.yf = gpuArray(yf_);
                 obj.lambda = gpuArray(lambda_);

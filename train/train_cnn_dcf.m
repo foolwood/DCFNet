@@ -11,13 +11,13 @@ opts.imdbPath = fullfile(opts.expDir, 'imdb.mat');
 opts.lite = false;
 
 trainOpts.learningRate = 1e-5;
-trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 10;
-trainOpts.batchSize = 1;
 trainOpts.momentum = 0.9;
+trainOpts.weightDecay = 0.0005;
+trainOpts.numEpochs = 50;
+trainOpts.batchSize = 1;
 opts.train = trainOpts;
 
-if ~isfield(opts.train, 'gpus')&& ispc(), opts.train.gpus = [1];
+if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [1];
 else opts.train.gpus = []; end
 
 % --------------------------------------------------------------------
@@ -67,9 +67,9 @@ if opts.numGpus > 0
     bbox_target = gpuArray(imdb.images.target_bboxs(batch,:));
     bbox_search = gpuArray(imdb.images.search_bboxs(batch,:));
 else
-    target_cpu = vl_imreadjpeg(imdb.images.target(batch),'NumThreads',32);
+    target_cpu = vl_imreadjpeg(imdb.images.target(batch));
     target = target_cpu{1};
-    search_cpu = vl_imreadjpeg(imdb.images.search(batch),'NumThreads',32);
+    search_cpu = vl_imreadjpeg(imdb.images.search(batch));
     search = search_cpu{1};
     bbox_target = imdb.images.target_bboxs(batch,:);
     bbox_search = imdb.images.search_bboxs(batch,:);
