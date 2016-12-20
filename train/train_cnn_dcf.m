@@ -15,10 +15,9 @@ trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 50;
 trainOpts.batchSize = 1;
-trainOpts.prefetch = true ; 
 opts.train = trainOpts;
 
-if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [1];
+if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [];
 else opts.train.gpus = []; end
 
 % --------------------------------------------------------------------
@@ -59,12 +58,6 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-if nargout == 0
-    vl_imreadjpeg([imdb.images.target(batch),imdb.images.search(batch)],'prefetch') ;
-    inputs = []; 
-    return;
-end
-    
 if opts.numGpus > 0
     target_gpu = vl_imreadjpeg(imdb.images.target(batch),'GPU');
     target = target_gpu{1};
