@@ -20,7 +20,7 @@ end
 % -------------------------------------------------------------------------
 set = [ones(1,21395)];
 
-if strcmp(bbox_mode,'axis_aligned'),
+if strcmp(bbox_mode,'axis_aligned')
     get_bbox = @get_axis_aligned_BB;
 else
     get_bbox = @get_minmax_BB;

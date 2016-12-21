@@ -8,6 +8,7 @@
 \usepackage{algorithmic}
 
 \begin{document}
+
 \title{DeepDCF: The best feature for the DCF based tracker \\
 DCFNet: Discriminant Correlation Filter Network on Visual Tracking\\
 Best Convolutional Features for Correlation Filter based Visual Tracking}
@@ -19,7 +20,7 @@ Best Convolutional Features for Correlation Filter based Visual Tracking}
 
 Discriminative Correlation Filters(DCF) have been widely used recent years in visual tracking due to the high precision and fast training and detection.
 
-Convolutional Networks can enjoy millions labeled images for the offline representation learning.Classification even loss the spatial information.
+Convolutional Networks can enjoy millions labeled images for the offline representation learning. CNN based object classification and detection make a revolutionary progress due to the rich representation abilities. Classification even loss the spatial information.
 
 Tracking is differenet with detection and classification. Classification and DET both eliminate the differences in the same class. 
 
@@ -31,9 +32,10 @@ To put the tracking problem simple to the similarity metrics for total offline l
 \subsection{related work}
 
 \subsection{CNN}
-	CNN can be  treated as a encode function $ \Phi (x)$ of receptive field.
+
+CNN can be  treated as a encode function $ \Phi (x)$ of receptive field.
 	
-\textit{	\begin{center}
+\textit{\begin{center}
 \includegraphics[width=3in]{./img/depthcol.jpg}
 \end{center}}
 	
@@ -45,14 +47,14 @@ It is sparse (only a few input units contribute to a given output unit) and reus
 \subsection{contributions}
 
 \section{Discriminative Correlation Filters}
-	\subsection{DSST Derivation}
-	\textbf{(PCA-HOG+Gray)+DCF+Scale Esimation}\\
-	key word: circular correlation,Parserval's identity, dense feature
-		\subsubsection{Single Feature(gray)}
-		patch: $x_1,...,x_t$	\\
-		label: $y_1,...,y_t$	\\
-		filter: $w_t$	\\
-		test patch: $z$	\\
+  \subsection{DSST Derivation}
+  \textbf{(PCA-HOG+Gray)+DCF+Scale Esimation}\\
+  key word: circular correlation,Parserval's identity, dense feature
+    \subsubsection{Single Feature(gray)}
+    patch: $x_1,...,x_t$	\\
+    label: $y_1,...,y_t$	\\
+    filter: $w_t$	\\
+    test patch: $z$	\\
 
 $$
 \epsilon =  \sum_{j=1}^{t}\left \| w_{t}\star x_{j}-y_{j} \right \|^{2} = \sum_{j=1}^{t}\left \| \overline{W}_{t} \odot X_{j}-Y_{j} \right \|^{2}
@@ -64,7 +66,7 @@ W_{t}=\frac{\sum_{j=1}^{t}\overline{Y}_{j} \odot X_{j}}{\sum_{j=1}^{t}X_{j} \odo
 $$
 
 $$
-y=\mathfrak{F}^{-1} \left( {\overline{W}_{t} \odot Z}\right)
+y=w_t \star z = \mathfrak{F}^{-1} \left( {\overline{W}_{t} \odot Z}\right)
  = \mathfrak{F}^{-1} \left(\frac{\sum_{j=1}^{t}\overline{X}_{j} \odot Y_{j} \odot Z}{\sum_{j=1}^{t}\overline{X_{j}} \odot X_{j}} \right)
 $$
 
@@ -72,21 +74,17 @@ This is a little different between MOSSE\cite{MOSSE} and this Derivation. No reg
 
 \subsubsection{Multidimensional Features}
 
-patch: 
-$  f^{l} ,l\in \{ 1,...,d \} $
-label: 
-$ g $
-filter: 
-$ h^{l} $
-test patch: 
-$ z^{l} $
+patch: $  x_t^l ,l\in \{ 1,...,d \} $ \\
+label: $ y $ \\
+filter: $ w_t^l $ \\
+test patch: $ z^l $ \\
 
 $$
-\epsilon =  \sum_{l=1}^{d}\left \| h^{l}\star f^{l}-g \right \|^{2} +\lambda \sum_{l=1}^{d}\left\|h^{l} \right\|^{2}
+\epsilon = \left \| \sum_{l=1}^{d} w_t^l\star x_t^l-y \right \|^{2} +\lambda \sum_{l=1}^{d}\left\|w^l \right\|^{2}
 $$
 
 $$
-H^{l}=\frac{\overline{G}F^{l}}{\sum_{k=1}^{d}\overline{F^{k}}F^{k}+\lambda}
+W_t^l=\frac{\overline{Y}X_t^l}{\sum_{k=1}^{d}\overline{X_t^k}X_t^k+\lambda}
 $$
 
 
@@ -101,32 +99,30 @@ B_{t}^{l} = (1-\eta )B_{t-1}^{l}+\eta \sum_{k=1}^{d}\overline{F}_{t}F_{t}^{l}
 $$
 
 $$
-y=\mathfrak{F}^{-1}\left\{ \frac{\sum_{l=1}^{d}\overline{A^{l}}Z^{l}}{B+\lambda}\right\}
+y=\mathfrak{F}^{-1}\left\{ \frac{\sum_{l=1}^{d}\overline{A_t^{l}}Z^{l}}{B_t+\lambda}\right\}
 $$
 
 
 	\subsection{CN}
 
-
 	\subsection{SRDCF}
 	\subsection{CF2}
-
 	
-	\section{DeepDCF}
+	\section{DCFNet}
 	
  The network in this filed utilize pooling to reduce the computation complexity and eliminate the spatial information.
- So we rebuild the network with zero stride and total small size kernel convnet. We think the resolution in the spatial must be reserved. For the shortcomings of no stride and pooling, we have a small receptive field. So we anlynsis use the DilatedNet.
+ So we rebuild the network with 1 stride and total small size kernel convnet. We think the resolution in the spatial must be reserved. For the shortcomings of small stride and no  pooling, we have a small receptive field. So we anlynsis use the DilatedNet to increase the receptive field for each position.
 	
 	
-target patch: $ x^{l} ,l\in \{ 1,...,d \} $
-idea label: $ y $
-filter: $ w^{l} $
-test patch: $ z^{l} $
-test output: $ g $
+target patch: $ x^{l} ,l\in \{ 1,...,d \} $ \\
+idea label: $ y $ \\
+filter: $ w^{l} $ \\
+test patch: $ z^{l} $ \\
+test output: $ g $ \\
 
 For the learing part.
 $$
-\epsilon =  \sum_{l=1}^{d}\left \| w^{l}\star x^{l}-y \right \|^{2} +\lambda \sum_{l=1}^{d}\left\|w^{l} \right\|^{2}
+\epsilon =  \left \| \sum_{l=1}^{d} w^{l}\star x^{l}-y \right \|^{2} +\lambda \sum_{l=1}^{d}\left\|w^{l} \right\|^{2}
 $$
 
 $$
@@ -147,8 +143,8 @@ $$
 
 \begin{lstlisting}[language=Octave]
 
-g=ifft2((sum(fft2(z).*conj(fft2(x)), 3).*fft2(y))./...
-	(sum(fft2(x).*conj(fft2(x)), 3)+lambda)));
+g=ifft2((sum(fft2(z).*conj(fft2(x)), 3) / numel(x).*fft2(y))./...
+	(sum(fft2(x).*conj(fft2(x)), 3) / numel(x) + lambda)));
 
 \end{lstlisting}
 
@@ -204,17 +200,22 @@ $$
 $$
 
 $$
+\frac{\partial l}{\partial z_{uv}^{l}}
+=\mathfrak{F}^{-1} \left\{ \frac{\partial l}{\partial Z^l}\right\}_{uv}
+$$
+
+$$
 \frac{\partial l}{\partial X_{uv}^{l}}
 =\frac{\partial l}{\partial G_{u,v}}\frac{\partial G_{u,v}}{\partial X_{uv}}
 =\mathfrak{F}\left\{\frac{\partial l}{\partial g}\right\}_{uv}
 \frac{
-\overline{Z_{uv}^{l}Y_{uv}}(\sum_{k=1}^{d}\overline{X_{uv}^{k}}X_{uv}^{k}+\lambda)-\overline{X_{uv}^{k}}(\sum_{l=1}^{d}(Z_{uv}^{l}\overline{X_{uv}^{l}})Y_{uv})}
-{(\sum_{k=1}^{d}\overline{X_{uv}^{k}}X_{uv}^{k}+\lambda)^{2}}
+\overline{Z_{uv}^{l}Y_{uv}}(\sum_{k=1}^{d}X_{uv}^{k}\overline{X_{uv}^{k}}+\lambda)-\overline{X_{uv}^{l}}(\sum_{l=1}^{d}(Z_{uv}^{l}\overline{X_{uv}^{l}})Y_{uv})}
+{(\sum_{k=1}^{d}X_{uv}^{k}\overline{X_{uv}^{k}}+\lambda)^{2}}
 $$
 	
 $$
 \frac{\partial l}{\partial x_{uv}^{l}}
-=\mathfrak{F}^{-1} \left\{ \frac{\partial l}{\partial X}\right\}_{uv}^l
+=\mathfrak{F}^{-1} \left\{ \frac{\partial l}{\partial X^l}\right\}_{uv}
 $$
 
 
@@ -249,9 +250,9 @@ $$
 
 I think that is a very perfect visualization of the training process.
 
-%\begin{center}
-%\includegraphics[width=4in,trim = 0mm 65mm 0mm 65mm, clip]{./img/visual_training.pdf}
-%\end{center}
+\begin{center}
+\includegraphics[width=4in,trim = 0mm 65mm 0mm 65mm, clip]{./img/visual_training.pdf}
+\end{center}
 
 \subsection{Details and Paramemters}
 

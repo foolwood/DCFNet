@@ -2,7 +2,7 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.networkType = 1;
+opts.networkType = 7;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['vot2016-' num2str(opts.networkType) '-' num2str(opts.lossType) '-DCFNet']) ;
@@ -58,6 +58,7 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
+batch = 1;
 if opts.numGpus > 0
     target_gpu = vl_imreadjpeg(imdb.images.target(batch),'GPU');
     target = target_gpu{1};
