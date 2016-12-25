@@ -36,17 +36,19 @@ classdef DCF < dagnn.ElementWise
             
             dldrf = fft2(derOutputs{1}); 
             xf = fft2(inputs{1});% target region
-%             zf = fft2(inputs{2});% search region
+            zf = fft2(inputs{2});% search region
             xf_conj = conj(xf);
             
             [h,w,c,~] = size(xf);
             hwc = h*w*c;
             
-            kxxf = sum(xf .* xf_conj, 3) ./ hwc;
-            alphaf = bsxfun(@rdivide,obj.yf,(kxxf + obj.lambda));
-            
-            dldx = [];
+            kxxf = sum(xf .* xf_conj, 3) ./ hwc +obj.lambda;
+            kzxf = sum(zf .* xf_conj, 3) ./ hwc;
+            alphaf = bsxfun(@rdivide,obj.yf, kxxf);
             dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/hwc));
+            
+            dldx = real(ifft2(bsxfun(@times,conj(dldrf).*alphaf,zf)/hwc+...
+            2/hwc*bsxfun(@times,xf,real(-dldrf.*conj(alphaf)./kxxf.*conj(kzxf)))));
             
             derInputs{1} = dldx;
             derInputs{2} = dldz;

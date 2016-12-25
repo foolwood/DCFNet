@@ -3,7 +3,7 @@ function deepdcf_vot
 % *************************************************************
 % VOT: Always call exit command at the end to terminate Matlab!
 % *************************************************************
-% cleanup = onCleanup(@() exit() );
+cleanup = onCleanup(@() exit() );
 
 % *************************************************************
 % VOT: Set random seed to a different value every time.
@@ -43,7 +43,7 @@ end;
 % **********************************
 % VOT: Output the results
 % **********************************
-% handle.quit(handle);
+handle.quit(handle);
 
 end
 
@@ -60,7 +60,7 @@ state.net = net;
 
 state.lambda = 1e-4;
 state.padding = 1.5;
-state.output_sigma_factor = 0.1; 
+state.output_sigma_factor = 0.1;
 state.interp_factor = 0.02;
 state.output_sigma = sqrt(prod([50,50]))*state.output_sigma_factor;
 
@@ -87,10 +87,10 @@ state.model_xf = xf;
 
 location = region;
 if state.visual
-subplot(1,2,1);imshow(patch);
-subplot(1,2,2);imshow(uint8(I));
-rectangle('Position',location,'EdgeColor','g');
-drawnow;
+    subplot(1,2,1);imshow(patch);
+    subplot(1,2,2);imshow(uint8(I));
+    rectangle('Position',location,'EdgeColor','g');
+    drawnow;
 end
 
 end
@@ -111,10 +111,10 @@ kzf = sum(zf.*conj(state.model_xf),3)/numel(zf);
 
 response = real(ifft2(state.model_alphaf .* kzf));
 [vert_delta, horiz_delta] = find(response == max(response(:)), 1);
-if vert_delta > size(zf,1) / 2,  %wrap around to negative half-space of vertical axis
+if vert_delta > size(zf,1) / 2  %wrap around to negative half-space of vertical axis
     vert_delta = vert_delta - size(zf,1);
 end
-if horiz_delta > size(zf,2) / 2,  %same for horizontal axis
+if horiz_delta > size(zf,2) / 2  %same for horizontal axis
     horiz_delta = horiz_delta - size(zf,2);
 end
 state.pos = state.pos + [vert_delta - 1, horiz_delta - 1].*...
@@ -140,10 +140,10 @@ box = [state.pos([2,1]) - state.target_sz([2,1])/2, state.target_sz([2,1])];
 location = double(gather(box));
 
 if state.visual
-subplot(1,2,1);im_show_add_response(patch_crop,response);
-subplot(1,2,2);imshow(uint8(I));
-rectangle('Position',location,'EdgeColor','g');
-drawnow;
+    subplot(1,2,1);im_show_add_response(patch_crop, response);
+    subplot(1,2,2);imshow(uint8(I));
+    rectangle('Position',location,'EdgeColor','g');
+    drawnow;
 end
 
 end
@@ -158,14 +158,6 @@ h = imagesc(response);colormap(jet);
 set(h,'AlphaData',gather(response)+0.35);
 end
 
-
-function feature_valid_index = is_valid(res,mask)
-res = reshape(res,[],size(res,3));
-mask = reshape(mask,[],1);
-feature_valid_index = sum(bsxfun(@times,res,mask))>(2601/15625)*sum(res);
-end
-
-
 function labels = gaussian_shaped_labels(sigma, sz)
 [rs, cs] = ndgrid((1:sz(1)) - floor(sz(1)/2), (1:sz(2)) - floor(sz(2)/2));
 labels = exp(-0.5 / sigma^2 * (rs.^2 + cs.^2));
@@ -174,7 +166,7 @@ assert(labels(1,1) == 1)
 end
 
 function out = get_subwindow(im, pos, sz)
-if isscalar(sz),  %square sub-window
+if isscalar(sz)  %square sub-window
     sz = [sz, sz];
 end
 xs = floor(pos(2)) + (1:sz(2)) - floor(sz(2)/2);
