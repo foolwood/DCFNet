@@ -44,7 +44,7 @@ end
   'val', find(imdb.images.set == 2)) ;
 
 netStruct = net.saveobj() ;
-save('./vgg16_dcf.mat', '-v7.3', '-struct', 'netStruct') ;
+save(fullfile(opts.expDir,'trained.mat'), '-v7.3', '-struct', 'netStruct') ;
 clear netStruct ;
 
 end
