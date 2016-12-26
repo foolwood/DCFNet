@@ -7,10 +7,9 @@ classdef CenterLoss < dagnn.Loss
     methods
         function outputs = forward(obj, inputs, params)
             r = inputs{1};
-            delta_yx = inputs{2};
             
             center_loss = 0;
-            for i = 1:size(delta_yx,1)
+            for i = 1:size(r,4)
                 response = r(:,:,i);
                 [vert_delta, horiz_delta] = find(response == max(response(:)), 1);
                 if vert_delta > obj.win_size(1) / 2  %wrap around to negative half-space of vertical axis
@@ -20,7 +19,7 @@ classdef CenterLoss < dagnn.Loss
                     horiz_delta = horiz_delta - obj.win_size(2);
                 end
                 delta_yx_pred = [vert_delta-1, horiz_delta-1];
-                center_loss = center_loss+norm(delta_yx_pred - delta_yx(i,:));
+                center_loss = center_loss+norm(delta_yx_pred);
             end
             outputs{1} = center_loss;
             

@@ -16,40 +16,19 @@ classdef ResponseLossL2 < dagnn.Loss
         sigma = 1;
     end
     properties (Transient)
-        ny = [];
+        y = [];
     end
-
     methods
         function outputs = forward(obj, inputs, params)
-            assert(numel(inputs) == 2, 'two inputs are needed');
             r = inputs{1}; % r
             
-            delta_yx = inputs{2}; % delta_yx
-            delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
-            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
-            
-            
-            delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
-            
             useGPU = isa(r, 'gpuArray');
-            if isempty(obj.ny)
-                obj.initNY(useGPU);
+            if isempty(obj.y)
+                obj.initY(useGPU);
             end
            
-            loss = (r - obj.ny(:,:,1,delta_yx_ind));
+            loss = bsxfun(@minus,r,obj.y);
             loss = loss.*loss;
-            
-            subplot(2,2,1);imagesc(r(:,:,1)); subplot(2,2,2);imagesc(obj.ny(:,:,1,delta_yx_ind(1)));
-            subplot(2,2,4);imagesc(loss(:,:,1));colorbar();
-            drawnow
-
-%             figure(2);
-%             for i = 1:size(r,4)
-%                 subplot(4,size(r,4)/4,i);imagesc(r(:,:,i));hold on;
-%                 plot(delta_x(i),delta_y(i),'r*');
-%             end
-%             drawnow;
-            
             
             outputs{1} = sum(loss(:))/size(r,4);
             
@@ -61,39 +40,24 @@ classdef ResponseLossL2 < dagnn.Loss
         end
         
         function [derInputs, derParams] = backward(obj, inputs, params, derOutputs)
-            assert(numel(inputs) == 2, 'two inputs are needed');
             r = inputs{1}; % r
-            
-            delta_yx = inputs{2}; % delta_yx
-            delta_y = mod(delta_yx(:,1),obj.win_size(1))+1;% 1-index
-            delta_x = mod(delta_yx(:,2),obj.win_size(2))+1;% 1-index
-            
-            delta_yx_ind = sub2ind(obj.win_size,delta_y,delta_x);
-            r_idea = obj.ny(:,:,1,delta_yx_ind);
-            
-            derInputs = {(derOutputs{1}*2/size(r,4))*(r - r_idea), []} ;
+            derInputs{1} = (derOutputs{1}*2/size(r,4)).*bsxfun(@minus,r,obj.y) ;
             derParams = {} ;
         end
         
-        function initNY(obj, useGPU)
-            ny_ = zeros([obj.win_size,1,obj.win_size],'single');
+        function initY(obj, useGPU)
             
             y_ = single(gaussian_shaped_labels(obj.sigma, obj.win_size));
-            
-            for i = 1:obj.win_size(1)
-                for j = 1:obj.win_size(2)
-                    ny_(:,:,1,i,j) = circshift(y_,[i-1,j-1]);
-                end
-            end
+
             if useGPU
-                obj.ny = gpuArray(ny_);
+                obj.y = gpuArray(y_);
             else
-                obj.ny = ny_;
+                obj.y = y_;
             end
         end
         
         function obj = reset(obj)
-            obj.ny = [] ;
+            obj.y = [] ;
             obj.average = 0 ;
             obj.numAveraged = 0 ;
         end
@@ -102,7 +66,7 @@ classdef ResponseLossL2 < dagnn.Loss
             obj.load(varargin);
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-            obj.ny = [];
+            obj.y = [];
         end
 
     end
