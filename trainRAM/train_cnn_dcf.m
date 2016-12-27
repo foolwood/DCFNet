@@ -2,7 +2,7 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.dataset = 2;
+opts.dataset = 1;
 opts.networkType = 4;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
@@ -14,11 +14,11 @@ opts.lite = false;
 trainOpts.learningRate = 1e-5;
 trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 50;
+trainOpts.numEpochs = 51;
 trainOpts.batchSize = 16;
 opts.train = trainOpts;
 
-if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [];
+if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [1];
 else opts.train.gpus = []; end
 
 % --------------------------------------------------------------------
@@ -59,7 +59,7 @@ end
 % --------------------------------------------------------------------
 function inputs = getDagNNBatch(opts, imdb, batch)
 % --------------------------------------------------------------------
-rand_next = randi([1,opts.step],1,opts.batchSize);
+rand_next = randi([1,opts.step],size(batch));
 rand_next = min(rand_next,imdb.images.up_index(batch));
 
 if opts.numGpus > 0

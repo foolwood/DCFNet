@@ -29,3 +29,4 @@ data/train2014.zip.xltd.cfg
 *.gz
 
 *.blg
+*.DS_Store
