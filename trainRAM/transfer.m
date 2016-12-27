@@ -99,7 +99,6 @@ net.layers{end+1} = struct(...
     'param',[5 1 0.0001/5 0.75]) ;
 
 save('../track4vot/simplenn_vgg_deepdcfnet.mat','net');
-ccc
 net = load('../track4vot/simplenn_vgg_deepdcfnet.mat');
 net = vl_simplenn_tidy(net.net) ;
 res = vl_simplenn(net, rand(125,125,3,'single')) ;
