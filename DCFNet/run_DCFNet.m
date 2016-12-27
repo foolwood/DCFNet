@@ -20,13 +20,14 @@ end
 
 
 function [state, location] = DCFNet_initialize(I, region, varargin)
-state.gpu = false;
+state.gpu = true;
 state.visual = false;
 
 net = load('simplenn_vgg_deepdcfnet.mat');
 net = vl_simplenn_tidy(net.net);
 if state.gpu    %gpuSupport
     net = vl_simplenn_move(net, 'gpu');
+    I = gpuArray(I);
 end
 state.net = net;
 
@@ -82,6 +83,7 @@ end
 end
 
 function [state, location] = DCFNet_update(state, I, varargin)
+if state.gpu, I = gpuArray(I);end
 window_sz = bsxfun(@times, state.target_sz, state.scale_factor)*(1+state.padding);
 patch_crop = imcrop_multiscale(I, state.pos, window_sz, state.norm_size);
 if state.gpu,patch_crop= gpuArray(patch_crop);end    %gpuSupport
@@ -161,6 +163,11 @@ if im_c == 1
     img = repmat(img,[1,1,3,1]);
 end
 
+pos = gather(pos);
+sz = gather(sz);
+im_h = gather(im_h);
+im_w = gather(im_w);
+
 cy_t = (pos(1)*2/(im_h-1))-1;
 cx_t = (pos(2)*2/(im_w-1))-1;
 
@@ -169,7 +176,11 @@ w_s = sz(2,:)/(im_w-1);
 
 s = reshape([h_s;w_s], 2,1,[]); % x,y scaling
 t = [cy_t;cx_t]; % translation
-
+if isa(img,'gpuArray')
+    yyxx = gpuArray(yyxx);
+    s = gpuArray(s);
+    t = gpuArray(t);
+end
 g = bsxfun(@times, yyxx, s); % scale
 g = bsxfun(@plus, g, t); % translate
 g = reshape(g, 2, output_sz(1), output_sz(2), []);

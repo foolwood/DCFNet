@@ -2,7 +2,7 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.dataset = 1;
+opts.dataset = 2;
 opts.networkType = 4;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
@@ -14,11 +14,11 @@ opts.lite = false;
 trainOpts.learningRate = 1e-5;
 trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
-trainOpts.numEpochs = 51;
+trainOpts.numEpochs = 50;
 trainOpts.batchSize = 16;
 opts.train = trainOpts;
 
-if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [1];
+if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [2];
 else opts.train.gpus = []; end
 
 % --------------------------------------------------------------------
