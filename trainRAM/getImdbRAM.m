@@ -8,11 +8,13 @@ opts.otb_dataDir = fullfile(opts.dataDir,'OTB');
 opts.nus_pro_dataDir = fullfile(opts.dataDir,'NUS_PRO');
 opts.tc128_dataDir = fullfile(opts.dataDir,'Temple-color-128');
 opts.alov300_dataDir = fullfile(opts.dataDir,'ALOV300');
+opts.uav123_dataDir = fullfile(opts.dataDir,'UAV123');
+addpath(opts.uav123_dataDir);
 
 opts.visualization = false;
 opts.size = [125,125];
 opts.padding = 1.5;
-opts.dataset = 2;
+opts.dataset = 4;
 opts = vl_argparse(opts, varargin);
 
 bbox_mode = 'axis_aligned';
@@ -26,6 +28,7 @@ end
 %           vot16:21395+60 vot15:21395 vot14:10188 vot13:5665
 %           cvpr2013:29435 tb100:58935 tb50:26922
 %           nus_pro:26090+73 tc128:55217+129 alov300:89351 det16:478806
+%           uav123:
 %   Special dataset:
 %           alov300_goturn:15570
 % -------------------------------------------------------------------------
@@ -36,9 +39,12 @@ switch opts.dataset
         num_all_frame = 21395+60;
     case 2
         set_name = {'nus_pro','tc128'};
-        num_all_frame = 26090+73+55217+129;
+        num_all_frame = (26090+73)+(55217+129);
+    case 3
+        set_name = {'nus_pro','tc128_ce','uav123'};
+        num_all_frame = (26090+73)+(30507+78)+109895;
     otherwise
-        error('No such version!'); 
+        error('No such version!');
 end
 
 
@@ -125,6 +131,81 @@ if any(strcmpi(set_name,'tc128'))
         now_index = now_index+num_frame;
     end %%end v
 end %%end tc128
+% -------------------------------------------------------------------------
+%                                                                     TC128
+% -------------------------------------------------------------------------
+if any(strcmpi(set_name,'tc128_ce'))
+    
+    disp('TC128ce Data:');
+    tc128_dataDir = opts.tc128_dataDir;
+    TC128_temp = dir(tc128_dataDir);
+    TC128 = {TC128_temp.name};
+    TC128(strcmp('.', TC128) | strcmp('..', TC128)| ~[TC128_temp.isdir]) = [];
+    tc128_no_cvpr2013_index = zeros(1,numel(TC128));
+    for k = 1:numel(TC128)
+        if numel(strfind(TC128{k},'_ce'))~=0
+            tc128_no_cvpr2013_index(k) = 1;
+        else
+            tc128_no_cvpr2013_index(k) = 0;
+        end
+    end
+    videos = TC128(tc128_no_cvpr2013_index==1);
+    
+    for  v = 1:numel(videos)
+        video = videos{v};fprintf('%3d :%20s\n',v,video);
+        [img_files, ground_truth_4xy] = load_video_info_tc128(tc128_dataDir, video);
+        im_frist = vl_imreadjpeg(img_files(1));
+        [H,W,~] = size(im_frist{1});
+        im_bank = vl_imreadjpeg(img_files,'Pack','Resize',[H,W]);
+        bbox_gt = get_bbox(ground_truth_4xy);
+        num_frame = size(bbox_gt,1);
+        imdb.images.images(:,:,:,now_index+(1:num_frame)) = uint8(...
+            imcrop_my(im_bank{1},bbox_gt,opts.padding,opts.size));
+        imdb.images.up_index(now_index+(1:num_frame)) = (num_frame-1):-1:0;
+        imdb.images.set(now_index+num_frame) = 4;%should not be selected.
+        now_index = now_index+num_frame;
+    end %%end v
+end %%end tc128_ce
+
+% -------------------------------------------------------------------------
+%                                                                    UAV123
+% -------------------------------------------------------------------------
+if any(strcmpi(set_name,'uav123'))
+    
+    disp('UAV123 Data:');
+    uav123_dataDir = opts.uav123_dataDir;
+    uav123_annoDir = fullfile(uav123_dataDir,'anno','UAV123');
+    videos = configSeqs;
+    
+    for  v = 1:numel(videos)
+        video = videos{v};fprintf('%3d :%20s\n',v,video.name);
+        
+        nz	= strcat('%0',num2str(video.nz),'d'); %number of zeros in the name of image
+        img_files = num2str((video.startFrame : video.endFrame)', [nz,'.',video.ext]);
+        img_files = cellstr(img_files);
+        img_files = fullfile(video.path,img_files);
+        
+        ground_truth = dlmread(fullfile(uav123_annoDir,[video.name '.txt']));
+        ground_truth_4xy = [ground_truth(:,1),ground_truth(:,2),...
+            ground_truth(:,1),ground_truth(:,2)+ground_truth(:,4),...
+            ground_truth(:,1)+ground_truth(:,3),ground_truth(:,2)+ground_truth(:,4),...
+            ground_truth(:,1)+ground_truth(:,3),ground_truth(:,2)];
+        invaildindex = any(isnan(ground_truth),2);
+        img_files(invaildindex) = [];
+        ground_truth_4xy(invaildindex,:) = [];
+        
+        im_frist = vl_imreadjpeg(img_files(1));
+        [H,W,~] = size(im_frist{1});
+        im_bank = vl_imreadjpeg(img_files,'Pack','Resize',[H,W]);
+        bbox_gt = get_bbox(ground_truth_4xy);
+        num_frame = size(bbox_gt,1);
+        imdb.images.images(:,:,:,now_index+(1:num_frame)) = uint8(...
+            imcrop_my(im_bank{1},bbox_gt,opts.padding,opts.size));
+        imdb.images.up_index(now_index+(1:num_frame)) = (num_frame-1):-1:0;
+        imdb.images.set(now_index+num_frame) = 4;%should not be selected.
+        now_index = now_index+num_frame;
+    end %%end v
+end %%end uav123
 
 % dataMean = single(mean(imdb.images.images,4));
 dataMean(1,1,1:3) = single([123,117,104]);
