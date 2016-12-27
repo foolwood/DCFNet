@@ -1,4 +1,4 @@
-function res = run_DCFNet(subS, rp, bSaveImage)
+function res = run_DCFNet(subS, rp, bSaveImage, varargin)
 init_rect = subS.init_rect;
 img_files = subS.s_frames;
 num_frame = numel(img_files);
@@ -7,7 +7,7 @@ result = repmat(init_rect,[num_frame,1]);
 vl_setupnn();
 im = vl_imreadjpeg(img_files);
 tic;
-[state, ~] = DCFNet_initialize(im{1}, init_rect);
+[state, ~] = DCFNet_initialize(im{1}, init_rect, varargin);
 for frame = 2:num_frame
     [state, region] = DCFNet_update(state, im{frame});
     result(frame,:) = region;
@@ -21,7 +21,7 @@ end
 
 function [state, location] = DCFNet_initialize(I, region, varargin)
 state.gpu = false;
-state.visual = true;
+state.visual = false;
 
 net = load('simplenn_vgg_deepdcfnet.mat');
 net = vl_simplenn_tidy(net.net);
@@ -40,8 +40,11 @@ state.scaleStep = 1.0375;
 state.scale_factor = state.scaleStep.^((1:state.numScale)-ceil(state.numScale/2));
 state.min_scale_factor = 0.2;
 state.max_scale_factor = 5;
+state.scale_penalty = 0.9745;
+state = vl_argparse(state, varargin{1, 1});
+
 state.scalePenalty = ones(1,state.numScale);
-state.scalePenalty((1:state.numScale)~=ceil(state.numScale/2)) = 0.9745;
+state.scalePenalty((1:state.numScale)~=ceil(state.numScale/2)) = state.scale_penalty;
 
 state.norm_size = state.net.meta.normalization.imageSize(1:2);
 
