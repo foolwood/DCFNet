@@ -2,8 +2,8 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.dataset = 2;
-opts.networkType = 4;
+opts.dataset = 3;
+opts.networkType = 11;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),'-loss-' num2str(opts.lossType) '-DCFNet-RAM']) ;
@@ -18,7 +18,7 @@ trainOpts.numEpochs = 50;
 trainOpts.batchSize = 16;
 opts.train = trainOpts;
 
-if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [2];
+if ~isfield(opts.train, 'gpus') && ispc(), opts.train.gpus = [1];
 else opts.train.gpus = []; end
 
 % --------------------------------------------------------------------
@@ -44,7 +44,7 @@ end
   'val', find(imdb.images.set == 2)) ;
 
 netStruct = net.saveobj() ;
-save(fullfile(opts.expDir,'trained.mat'), '-v7.3', '-struct', 'netStruct') ;
+save('trained.mat', '-v7.3', '-struct', 'netStruct') ;
 clear netStruct ;
 
 end

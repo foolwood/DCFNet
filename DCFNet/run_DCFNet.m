@@ -23,14 +23,6 @@ function [state, location] = DCFNet_initialize(I, region, varargin)
 state.gpu = true;
 state.visual = false;
 
-net = load('simplenn_vgg_deepdcfnet.mat');
-net = vl_simplenn_tidy(net.net);
-if state.gpu    %gpuSupport
-    net = vl_simplenn_move(net, 'gpu');
-    I = gpuArray(I);
-end
-state.net = net;
-
 state.lambda = 1e-4;
 state.padding = 1.5;
 state.output_sigma_factor = 0.1;
@@ -38,12 +30,22 @@ state.interp_factor = 0.023;
 
 state.numScale = 3;
 state.scaleStep = 1.0375;
-state.scale_factor = state.scaleStep.^((1:state.numScale)-ceil(state.numScale/2));
 state.min_scale_factor = 0.2;
 state.max_scale_factor = 5;
 state.scale_penalty = 0.9745;
+state.net_index = 1;
 state = vl_argparse(state, varargin{1, 1});
 
+net_name = ['DCFNet-', num2str(state.net_index),'.mat'];
+net = load(net_name);
+net = vl_simplenn_tidy(net.net);
+if state.gpu    %gpuSupport
+    net = vl_simplenn_move(net, 'gpu');
+    I = gpuArray(I);
+end
+state.net = net;
+
+state.scale_factor = state.scaleStep.^((1:state.numScale)-ceil(state.numScale/2));
 state.scalePenalty = ones(1,state.numScale);
 state.scalePenalty((1:state.numScale)~=ceil(state.numScale/2)) = state.scale_penalty;
 
