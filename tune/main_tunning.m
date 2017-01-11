@@ -1,32 +1,42 @@
-function res = run_DCFNet(subS, rp, bSaveImage, varargin)
-init_rect = subS.init_rect;
-img_files = subS.s_frames;
-num_frame = numel(img_files);
-result = repmat(init_rect,[num_frame, 1]);
-
-vl_setupnn();
-im = vl_imreadjpeg(img_files);
-tic;
-[state, ~] = DCFNet_initialize(im{1}, init_rect, varargin);
-for frame = 2:num_frame
-    [state, region] = DCFNet_update(state, im{frame});
-    result(frame,:) = region;
+function main_tunning(file, param, otb_dataset)
+state = tracker_base_init(param);
+for seq = 1:numel(otb_dataset)
+    display(otb_dataset(seq).name);
+    init_rect = otb_dataset(seq).init_rect;
+    img_files = otb_dataset(seq).s_frames;
+    num_frame = numel(img_files);
+    result = repmat(init_rect, [num_frame, 1]);
+    im = vl_imreadjpeg(img_files);
+    tic;
+    state = tracker_init(state, im{1}, init_rect);
+    for frame = 2:num_frame
+        [state, region] = tracker_update(state, im{frame});
+        result(frame,:) = region;
+    end
+    time = toc;
+    res.type = 'rect';
+    res.res = result;
+    res.fps = num_frame / time;
+    
+    res.len = otb_dataset(seq).len;
+    res.annoBegin = otb_dataset(seq).annoBegin;
+    res.startFrame = otb_dataset(seq).startFrame;
+    results{1} = res;
+    save(fullfile(file,[otb_dataset(seq).name '_DCFNet.mat']), 'results');
 end
-time = toc;
-res.type = 'rect';
-res.res = result;
-res.fps = num_frame / time;
+
 end
 
-
-function [state, location] = DCFNet_initialize(I, region, varargin)
+function state = tracker_base_init(param)
 state.gpu = false;
-state.visual = true;
+state.visual = false;
 
 state.lambda = 1e-4;
 state.padding = 1.5;
 state.output_sigma_factor = 0.1;
-state.interp_factor = 0.023;
+
+state.interp_factor1 = 0.023;
+state.interp_factor2 = 0.023;
 
 state.num_scale = 3;
 state.scale_step = 1.0375;
@@ -34,7 +44,9 @@ state.min_scale_factor = 0.2;
 state.max_scale_factor = 5;
 state.scale_penalty = 0.9745;
 state.net_index = 4;
-state = vl_argparse(state, varargin{1, 1});
+state = vl_argparse(state, param);
+
+state.interp_factor = state.interp_factor1;
 
 net_name = ['DCFNet-', num2str(state.net_index),'.mat'];
 net = load(net_name);
@@ -60,17 +72,22 @@ state.yyxx = single([yy(:), xx(:)]') ; % 2xM
 if state.gpu %gpuSupport
     state.yyxx = gpuArray(state.yyxx);
     state.net = vl_simplenn_move(state.net, 'gpu');
-    I = gpuArray(I);
     state.yf = gpuArray(state.yf);
     state.cos_window = gpuArray(state.cos_window);
 end
 
+end
+
+function [state, location] = tracker_init(state, I, region)
+if state.gpu
+    I = gpuArray(I);
+end
 state.pos = region([2,1])+region([4,3])/2;
 state.target_sz = region([4,3])';
 state.min_sz = state.min_scale_factor.*state.target_sz;
 state.max_sz = state.max_scale_factor.*state.target_sz;
 
-window_sz = state.target_sz*(1+state.padding);
+window_sz = state.target_sz.*(1+state.padding);
 patch = imcrop_multiscale(I, state.pos, window_sz, state.net_input_size, state.yyxx);
 target = bsxfun(@minus, patch, state.net_average_image);
 res = vl_simplenn(state.net, target);
@@ -91,9 +108,11 @@ end
 
 end
 
-function [state, location] = DCFNet_update(state, I, varargin)
-if state.gpu, I = gpuArray(I);end
-window_sz = bsxfun(@times, state.target_sz, state.scale_factor)*(1+state.padding);
+function [state, location] = tracker_update(state, I, varargin)
+if state.gpu
+    I = gpuArray(I);
+end
+window_sz = bsxfun(@times, state.target_sz, state.scale_factor).*(1+state.padding);
 patch_crop = imcrop_multiscale(I, state.pos, window_sz, state.net_input_size, state.yyxx);
 search = bsxfun(@minus, patch_crop, state.net_average_image);
 res = vl_simplenn(state.net, search);
@@ -141,7 +160,6 @@ if state.visual
 end
 
 end
-
 
 function im_show_add_response(im,response)
 sz = size(response);
