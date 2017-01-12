@@ -14,7 +14,7 @@ RandStream.setGlobalStream(RandStream('mt19937ar', 'Seed', sum(clock)));
 % VOT: Get initialization data
 % **********************************
 [handle, image, region] = vot('rectangle');
-
+gpuDevice(randi(2,1));
 vl_setupnn();
 % Initialize the tracker
 im = vl_imreadjpeg({image});
@@ -50,7 +50,7 @@ handle.quit(handle);
 end
 
 function [state, location] = DCFNet_initialize(I, region, varargin)
-state.gpu = false;
+state.gpu = true;
 state.visual = false;
 
 state.lambda = 1e-4;
