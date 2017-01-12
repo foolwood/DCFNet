@@ -85,7 +85,7 @@ median_OP_temple = median_OP(net6_index&scale3_index);
 median_DP_temple = median_DP(net6_index&scale3_index);
 median_CLE_temple = median_CLE(net6_index&scale3_index);
 median_Speed_temple = median_Speed(net6_index&scale3_index);
-[~,median_OP_index] = max(median_DP_temple);
+[~,median_OP_index] = max(median_OP_temple);
 fprintf('DCFNet-conv1 & %2.2f & %2.2f & %2.2f & %2.2f \\\\\n',...
     median_OP_temple(median_OP_index),median_DP_temple(median_OP_index),...
     median_CLE_temple(median_OP_index),median_Speed_temple(median_OP_index)); 
@@ -94,7 +94,7 @@ median_OP_temple = median_OP(net7_index&scale3_index);
 median_DP_temple = median_DP(net7_index&scale3_index);
 median_CLE_temple = median_CLE(net7_index&scale3_index);
 median_Speed_temple = median_Speed(net7_index&scale3_index);
-[~,median_OP_index] = max(median_DP_temple);
+[~,median_OP_index] = max(median_OP_temple);
 fprintf('DCFNet-conv2 & %2.2f & %2.2f & %2.2f & %2.2f \\\\\n',...
     median_OP_temple(median_OP_index),median_DP_temple(median_OP_index),...
     median_CLE_temple(median_OP_index),median_Speed_temple(median_OP_index)); 
@@ -103,7 +103,7 @@ median_OP_temple = median_OP(net6_index&scale1_index);
 median_DP_temple = median_DP(net6_index&scale1_index);
 median_CLE_temple = median_CLE(net6_index&scale1_index);
 median_Speed_temple = median_Speed(net6_index&scale1_index);
-[~,median_OP_index] = max(0+median_DP_temple);
+[~,median_OP_index] = max(0+median_OP_temple);
 fprintf('DCFNet-conv1-1s & %2.2f & %2.2f & %2.2f & %2.2f \\\\\n',...
     median_OP_temple(median_OP_index),median_DP_temple(median_OP_index),...
     median_CLE_temple(median_OP_index),median_Speed_temple(median_OP_index)); 
@@ -112,7 +112,7 @@ median_OP_temple = median_OP(net6_index&scale5_index);
 median_DP_temple = median_DP(net6_index&scale5_index);
 median_CLE_temple = median_CLE(net6_index&scale5_index);
 median_Speed_temple = median_Speed(net6_index&scale5_index);
-[~,median_OP_index] = max(0+median_DP_temple);
+[~,median_OP_index] = max(0+median_OP_temple);
 fprintf('DCFNet-conv1-5s & %2.2f & %2.2f & %2.2f & %2.2f \\\\\n',...
     median_OP_temple(median_OP_index),median_DP_temple(median_OP_index),...
     median_CLE_temple(median_OP_index),median_Speed_temple(median_OP_index)); 
@@ -121,7 +121,7 @@ median_OP_temple = median_OP(net6_index&scale7_index);
 median_DP_temple = median_DP(net6_index&scale7_index);
 median_CLE_temple = median_CLE(net6_index&scale7_index);
 median_Speed_temple = median_Speed(net6_index&scale7_index);
-[~,median_OP_index] = max(0+median_DP_temple);
+[~,median_OP_index] = max(0+median_OP_temple);
 fprintf('DCFNet-conv1-7s & %2.2f & %2.2f & %2.2f & %2.2f \\\\\n',...
     median_OP_temple(median_OP_index),median_DP_temple(median_OP_index),...
     median_CLE_temple(median_OP_index),median_Speed_temple(median_OP_index)); 

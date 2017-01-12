@@ -7,5 +7,6 @@ addpath('F:\vot-toolkit'); toolkit_path; % Make sure that VOT toolkit is in the 
 
 tracker = tracker_load('DCFNet');
 
+experiments{1, 1}.parameters.repetitions = 1;
 workspace_evaluate(tracker, sequences, experiments);
 
