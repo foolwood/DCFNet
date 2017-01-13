@@ -104,7 +104,7 @@ kzf = sum(bsxfun(@times, zf, conj(state.model_xf)),3)/state.numel_xf;
 response = squeeze(real(ifft2(bsxfun(@times, state.model_alphaf, kzf))));
 [max_response, max_index] = max(reshape(response,[],state.num_scale));
 max_response = max_response.*state.scale_penalties;
-scale_delta = find(max_response == max(max_response),'last');
+scale_delta = find(max_response == max(max_response),1,'last');
 [vert_delta, horiz_delta] = ind2sub(state.net_input_size, max_index(scale_delta));
 
 if vert_delta > size(response,1) / 2  %wrap around to negative half-space of vertical axis
