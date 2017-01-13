@@ -89,7 +89,7 @@ if state.gpu, state.cos_window = gpuArray(state.cos_window);end    %gpuSupport
 
 state.pos = region([2,1])+region([4,3])/2;
 state.target_sz = region([4,3])';
-state.min_sz = state.min_scale_factor.*state.target_sz;
+state.min_sz = max(4,state.min_scale_factor.*state.target_sz);
 state.max_sz = state.max_scale_factor.*state.target_sz;
 
 window_sz = state.target_sz*(1+state.padding);
@@ -128,7 +128,7 @@ kzf = sum(bsxfun(@times, zf, conj(state.model_xf)),3)/state.numelxf;
 response = squeeze(real(ifft2(bsxfun(@times, state.model_alphaf, kzf))));
 [max_response, max_index] = max(reshape(response,[],state.numScale));
 max_response = max_response.*state.scalePenalty;
-scale_delta = find(max_response == max(max_response));
+scale_delta = find(max_response == max(max_response),'last');
 [vert_delta, horiz_delta] = ind2sub(state.norm_size,max_index(scale_delta));
 
 if vert_delta > size(response,1) / 2  %wrap around to negative half-space of vertical axis

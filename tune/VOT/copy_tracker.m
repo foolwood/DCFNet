@@ -5,7 +5,7 @@ interp_factor = 0.01;
 numScale = 3;
 output_sigma_factor = 0.1;
 scale_penalty = 0.97;
-modifiedStr = strrep(report, 'C:\Users\qiangwang\Documents\GitHub\DCFNet\track4vot', 'C:\Users\qiangwang\Documents\GitHub\DCFNet\track4vot');
+report = strrep(report, 'C:\Users\qiangwang\Documents\GitHub\DCFNet\track4vot', 'C:\Users\qiangwang\Documents\GitHub\DCFNet\track4vot');
 
 i = 0;
 for net_index = 6:6
@@ -16,7 +16,7 @@ for net_index = 6:6
                     i = i+1;
                     filename = ['tracker_DCFNet',num2str(i),'.m'];
                     fid = fopen(filename, 'w');
-                    modifiedStr = strrep(modifiedStr, 'DCFNetn', ['DCFNet',num2str(i)]);
+                    modifiedStr = strrep(report, 'DCFNetn', ['DCFNet',num2str(i)]);
                     modifiedStr = strrep(modifiedStr, 'net_index = 6', ['net_index = ',num2str(net_index)]);
                     modifiedStr = strrep(modifiedStr, 'interp_factor = 0.01', ['interp_factor = ',num2str(interp_factor)]);
                     modifiedStr = strrep(modifiedStr, 'numScale = 3', ['numScale = ',num2str(numScale)]);
