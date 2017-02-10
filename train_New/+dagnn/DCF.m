@@ -45,10 +45,10 @@ classdef DCF < dagnn.ElementWise
             kxxf = sum(xf .* xf_conj, 3) ./ hwc +obj.lambda;
             
             alphaf = bsxfun(@rdivide,obj.yf, kxxf);
-            dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)/hwc));
+            dldz = real(ifft2(bsxfun(@times,dldrf.*conj(alphaf),xf)))/hwc;
             kzxf = sum(zf .* xf_conj, 3) ./ hwc;
-            dldx = real(ifft2(bsxfun(@times,conj(dldrf).*alphaf,zf)/hwc+...
-            2/hwc*bsxfun(@times,xf,real(-dldrf.*conj(alphaf).*conj(kzxf)./kxxf))));
+            dldx = real(ifft2(bsxfun(@times,conj(dldrf).*alphaf,zf)-...
+            2*bsxfun(@times,xf,real(dldrf.*conj(alphaf.*kzxf)./kxxf))))/hwc;
             
             derInputs{1} = dldx;
             derInputs{2} = dldz;

@@ -3,7 +3,7 @@ function [net, info] = train_cnn_dcf(varargin)
 run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.dataset = 1;
-opts.networkType = 1;
+opts.networkType = 3;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),'-loss-' num2str(opts.lossType) '-DCFNet-New']) ;
@@ -14,13 +14,13 @@ trainOpts.learningRate = 1e-5;
 trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
 trainOpts.gpus = [];
-trainOpts.numEpochs = 20;
+trainOpts.numEpochs = 50;
 trainOpts.batchSize = 16;
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus')
     opts.train.gpus = [];
-else
+elseif numel(opts.train.gpus) ~=0
     gpuDevice(opts.train.gpus);
 end
 
@@ -45,11 +45,10 @@ end
   'expDir', opts.expDir, ...
   opts.train, ...
   'val', find(imdb.images.set == 2)) ;
-
-netStruct = net.saveobj() ;
-save('trained.mat', '-v7.3', '-struct', 'netStruct') ;
-clear netStruct ;
-
+net = deployDCFNet(net);
+save(fullfile('../model',...
+    ['DCFNet-dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),...
+    '-loss-' num2str(opts.lossType) '-epoch-' num2str(numel(info.train)) '.mat']),'net') ;
 end
 
 % --------------------------------------------------------------------

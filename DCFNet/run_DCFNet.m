@@ -1,4 +1,4 @@
-function res = run_DCFNet(subS, rp, bSaveImage, varargin)
+function res = run_DCFNet(subS, rp, bSaveImage, param)
 init_rect = subS.init_rect;
 img_files = subS.s_frames;
 num_frame = numel(img_files);
@@ -7,7 +7,7 @@ result = repmat(init_rect,[num_frame, 1]);
 vl_setupnn();
 im = vl_imreadjpeg(img_files);
 tic;
-[state, ~] = DCFNet_initialize(im{1}, init_rect, varargin);
+[state, ~] = DCFNet_initialize(im{1}, init_rect, param);
 for frame = 2:num_frame
     [state, region] = DCFNet_update(state, im{frame});
     result(frame,:) = region;
@@ -19,24 +19,24 @@ res.fps = num_frame / time;
 end
 
 
-function [state, location] = DCFNet_initialize(I, region, varargin)
+function [state, location] = DCFNet_initialize(I, region, param)
 state.gpu = false;
 state.visual = true;
 
 state.lambda = 1e-4;
 state.padding = 1.5;
 state.output_sigma_factor = 0.1;
-state.interp_factor = 0.023;
+state.interp_factor = 0.008;
 
 state.num_scale = 3;
 state.scale_step = 1.0375;
 state.min_scale_factor = 0.2;
 state.max_scale_factor = 5;
-state.scale_penalty = 0.9745;
-state.net_index = 4;
-state = vl_argparse(state, varargin{1, 1});
+state.scale_penalty = 1;
+state.net_name = 'DCFNet-dataset-1-net-1-loss-1-epoch-50';
+state = vl_argparse(state, param);
 
-net_name = ['DCFNet-', num2str(state.net_index),'.mat'];
+net_name = [state.net_name,'.mat'];
 net = load(net_name);
 net = vl_simplenn_tidy(net.net);
 state.net = net;

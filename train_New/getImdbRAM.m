@@ -14,13 +14,13 @@ addpath(opts.uav123_dataDir);
 opts.visualization = false;
 opts.output_size = [125,125];
 opts.padding = 1.5;
-opts.dataset = 4;
+opts.dataset = 2;
 opts = vl_argparse(opts, varargin);
 
 bbox_mode = 'axis_aligned';
 if strcmp(bbox_mode,'axis_aligned')
     get_bbox = @get_axis_aligned_BB;
-else
+elseif strcmp(bbox_mode,'minmax')
     get_bbox = @get_minmax_BB;
 end
 % -------------------------------------------------------------------------
@@ -85,9 +85,9 @@ if any(strcmpi(set_name,'nus_pro'))
     nus_pro_dataDir = opts.nus_pro_dataDir;
     filename = fullfile(nus_pro_dataDir,'seq_list_with_gt.csv');
     videos = importdata(filename);
-    
-    for  v = 1:numel(videos)
-        video = videos{v};fprintf('%3d :%20s\n',v,video);
+    n_videos = numel(videos);
+    for  v = 1:n_videos
+        video = videos{v};fprintf('%3d / %3d :%20s\n',v,n_videos,video);
         [img_files, ground_truth_4xy] = load_video_info_nus_pro(nus_pro_dataDir, video);
         im_frist = vl_imreadjpeg(img_files(1));
         [H,W,~] = size(im_frist{1});
@@ -112,9 +112,9 @@ if any(strcmpi(set_name,'tc128'))
     TC128 = {TC128_temp.name};
     TC128(strcmp('.', TC128) | strcmp('..', TC128)| ~[TC128_temp.isdir]) = [];
     videos = TC128;
-    
-    for  v = 1:numel(videos)
-        video = videos{v};fprintf('%3d :%20s\n',v,video);
+    n_videos = numel(videos);
+    for  v = 1:n_videos
+        video = videos{v};fprintf('%3d / %3d :%20s\n',v,n_videos,video);
         [img_files, ground_truth_4xy] = load_video_info_tc128(tc128_dataDir, video);
         im_frist = vl_imreadjpeg(img_files(1));
         [H,W,~] = size(im_frist{1});
@@ -147,9 +147,9 @@ if any(strcmpi(set_name,'tc128_ce'))
         end
     end
     videos = TC128(tc128_no_cvpr2013_index==1);
-    
-    for  v = 1:numel(videos)
-        video = videos{v};fprintf('%3d :%20s\n',v,video);
+    n_videos = numel(videos);
+    for  v = 1:n_videos
+        video = videos{v};fprintf('%3d / %3d :%20s\n',v,n_videos,video);
         [img_files, ground_truth_4xy] = load_video_info_tc128(tc128_dataDir, video);
         im_frist = vl_imreadjpeg(img_files(1));
         [H,W,~] = size(im_frist{1});
@@ -173,9 +173,9 @@ if any(strcmpi(set_name,'uav123'))
     uav123_dataDir = opts.uav123_dataDir;
     uav123_annoDir = fullfile(uav123_dataDir,'anno','UAV123');
     videos = configSeqs;
-    
-    for  v = 1:numel(videos)
-        video = videos{v};fprintf('%3d :%20s\n',v,video.name);
+    n_videos = numel(videos);
+    for  v = 1:n_videos
+        video = videos{v};fprintf('%3d / %3d :%20s\n',v,n_videos,video.name);
         
         nz	= strcat('%0',num2str(video.nz),'d'); %number of zeros in the name of image
         img_files = num2str((video.startFrame : video.endFrame)', [nz,'.',video.ext]);
@@ -209,6 +209,3 @@ dataMean(1,1,1:3) = single([123,117,104]);
 imdb.images.data_mean(1,1,1:3) = dataMean;
 imdb.meta.sets = {'train', 'val'} ;
 end %%end function
-
-
-
