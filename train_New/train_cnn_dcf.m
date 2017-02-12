@@ -2,8 +2,8 @@ function [net, info] = train_cnn_dcf(varargin)
 %CNN_DCF
 run('vl_setupnn.m') ;
 fftw('planner','patient');
-opts.dataset = 1;
-opts.networkType = 3;
+opts.dataset = 3;
+opts.networkType = 1;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),'-loss-' num2str(opts.lossType) '-DCFNet-New']) ;
@@ -14,7 +14,7 @@ trainOpts.learningRate = 1e-5;
 trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
 trainOpts.gpus = [];
-trainOpts.numEpochs = 50;
+trainOpts.numEpochs = 20;
 trainOpts.batchSize = 16;
 opts.train = trainOpts;
 
@@ -45,10 +45,21 @@ end
   'expDir', opts.expDir, ...
   opts.train, ...
   'val', find(imdb.images.set == 2)) ;
-net = deployDCFNet(net);
-save(fullfile('../model',...
+% net = deployDCFNet(net);
+% save(fullfile('../model',...
+%     ['DCFNet-dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),...
+%     '-loss-' num2str(opts.lossType) '-epoch-' num2str(numel(info.train)) '.mat']),'net') ;
+
+modelPath = dir(fullfile(opts.expDir, 'net-epoch-*.mat'));
+modelPath = sort({modelPath.name});
+for i = 1:numel(modelPath)
+    load(fullfile(opts.expDir, modelPath{i}));
+    net = dagnn.DagNN.loadobj(net) ;
+    net = deployDCFNet(net);
+    save(fullfile('../model',...
     ['DCFNet-dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),...
-    '-loss-' num2str(opts.lossType) '-epoch-' num2str(numel(info.train)) '.mat']),'net') ;
+    '-loss-' num2str(opts.lossType) modelPath{i}(4:end)]),'net') ;
+end
 end
 
 % --------------------------------------------------------------------
