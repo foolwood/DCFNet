@@ -3,7 +3,7 @@ function [net, info] = train_cnn_dcf(varargin)
 run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.dataset = 3;
-opts.networkType = 1;
+opts.networkType = 5;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),'-loss-' num2str(opts.lossType) '-DCFNet-New']) ;
@@ -13,7 +13,7 @@ opts.lite = false;
 trainOpts.learningRate = 1e-5;
 trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
-trainOpts.gpus = [];
+trainOpts.gpus = [2];
 trainOpts.numEpochs = 20;
 trainOpts.batchSize = 16;
 opts.train = trainOpts;
