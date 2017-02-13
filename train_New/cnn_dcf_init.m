@@ -272,6 +272,7 @@ elseif networkType == 10
     net.addLayer('relu4s', dagnn.ReLU(), {'conv4s'}, {'conv4sx'});
     
     conv5s = dagnn.Conv('size', [3 3 32 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    net.addLayer('conv5s', conv5s, {'conv4sx'}, {'conv5s'}, {'conv5f', 'conv5b'}) ;
     net.addLayer('norm1s', dagnn.LRN('param',[5 1 0.0001/5 0.75]), {'conv5s'}, {'z'});
 end
 
