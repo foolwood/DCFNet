@@ -3,7 +3,7 @@ function [net, info] = train_cnn_dcf(varargin)
 run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.dataset = 3;
-opts.networkType = 7;
+opts.networkType = 9;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),'-loss-' num2str(opts.lossType) '-DCFNet-New']) ;
