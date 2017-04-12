@@ -1,5 +1,5 @@
-function [net, info] = train_cnn_dcf(varargin)
-%CNN_DCF
+function [net, info] = trainDCFNet(varargin)
+%DCFNet
 run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.dataset = 3;
