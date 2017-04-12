@@ -14,9 +14,9 @@ Requirements for MatConvNet 1.0-beta23(see: [MatConvNet](http://www.vlfeat.org/m
 
 #### Tracking
 
-For simple test our algorithm, you can run directly `demo_DCFNet.m`.
+For simple test our algorithm, you can run `demo_DCFNet.m`.
 
-For verify  [**OTB**](http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html) and [**VOT**](http://www.votchallenge.net/) performance, you can simple copy `DCFNet` in OTB or Integrate `track4vot` to VOT toolkit.
+To verify [**OTB**](http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html) and [**VOT**](http://www.votchallenge.net/) performance, you can simple copy `DCFNet` in OTB or integrate `track4vot` to VOT toolkit.
 
 #### Training
 
