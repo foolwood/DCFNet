@@ -1,5 +1,6 @@
 clear; close all; clc;
 addpath('../DCFNet');
+addpath('../utils');
 
 init_rect = [129,80,64,78];
 img_file = dir('./David/img/*.jpg');
@@ -15,7 +16,7 @@ param.scale_step = 1.03;
 param.gpu = false;
 % param.gpu = true;
 % gpuDevice(1);
-param.visual = true;
+param.visual = false;
 tic
 res = run_DCFNet(subS,0,0,param);
 disp(['fps: ',num2str(numel(img_file)/toc)]);
