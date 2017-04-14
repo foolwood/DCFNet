@@ -69,6 +69,7 @@ You can choose the network architecture by setting `opts.networkType = 20`(This 
 
 #### Citing DCFNet
 If you find DCFNet useful in your research, please consider citing:
+
 ```
 @article{wang17dcfnet,
     Author = {Qiang Wang, Jin Gao, Junliang Xing, Mengdan Zhang, Weiming Hu},
