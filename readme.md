@@ -15,7 +15,6 @@ Requirements for MatConvNet 1.0-beta23\(see: [MatConvNet](http://www.vlfeat.org/
 
 ```
 git clone https://github.com/vlfeat/matconvnet.git
-
 ```
 
 2. Compiling MatConvNet
@@ -56,7 +55,7 @@ data
 2.Run `training/train_cnn_dcf.m` to train a model.
 
 
-You can choose the network architecture by setting `opts.networkType = 20`(This parameter is 20 by default)
+You can choose the network architecture by setting `opts.networkType = 21`(This parameter is 21 by default)
 
 #### Results on OTB and VOT2015
 **AUC on OTB2013 and OTB2015(OPE)**

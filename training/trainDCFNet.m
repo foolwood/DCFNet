@@ -1,9 +1,10 @@
 function [net, info] = trainDCFNet(varargin)
-%DCFNet
+%Training DCFNet
+addpath('../utils/')
 run('vl_setupnn.m') ;
 fftw('planner','patient');
 opts.dataset = 3;
-opts.networkType = 16;
+opts.networkType = 21;
 opts.lossType = 1;
 opts.expDir = fullfile('../data',...
     ['dataset-',num2str(opts.dataset),'-net-',num2str(opts.networkType),'-loss-' num2str(opts.lossType) '-DCFNet-New']) ;
@@ -15,7 +16,7 @@ trainOpts.momentum = 0.9;
 trainOpts.weightDecay = 0.0005;
 trainOpts.numEpochs = 20;
 trainOpts.batchSize = 16;
-trainOpts.gpus = [1];
+trainOpts.gpus = [1]; %only support single gpu
 opts.train = trainOpts;
 
 if ~isfield(opts.train, 'gpus')

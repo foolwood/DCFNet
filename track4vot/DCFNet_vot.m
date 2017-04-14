@@ -14,7 +14,7 @@ RandStream.setGlobalStream(RandStream('mt19937ar', 'Seed', sum(clock)));
 % VOT: Get initialization data
 % **********************************
 [handle, image, region] = vot('rectangle');
-gpuDevice(randi(2,1));
+gpuDevice(1);%Gpu support
 vl_setupnn();
 % Initialize the tracker
 im = vl_imreadjpeg({image});

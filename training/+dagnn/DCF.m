@@ -1,6 +1,6 @@
 classdef DCF < dagnn.ElementWise
 %DCF  layer
-%   Dual Correlation Filter(DCF) two activations of same size
+%   Discriminant Correlation Filters(DCF)
 %
 %   QiangWang, 2016
 % -------------------------------------------------------------------------------------------------------------------------
@@ -76,13 +76,9 @@ classdef DCF < dagnn.ElementWise
             obj.load(varargin);
             obj.win_size = obj.win_size;
             obj.sigma = obj.sigma ;
-        end
-        
+        end 
     end
-    
 end
-
-
 
 function labels = gaussian_shaped_labels(sigma, sz)%kcf
 [rs, cs] = ndgrid((1:sz(1)) - floor(sz(1)/2), (1:sz(2)) - floor(sz(2)/2));
@@ -90,19 +86,3 @@ labels = exp(-0.5 / sigma^2 * (rs.^2 + cs.^2));
 labels = circshift(labels, -floor(sz(1:2) / 2) + 1);
 assert(labels(1,1) == 1)
 end
-
-
-
-% function test()
-% x = rand(16,16,16,16);
-% z = x;
-% yf = repmat(fft2(gaussian_shaped_labels(1, [16,16])),[1,1,1,16]);
-% lambda = 1e-4;
-%
-% zf = fft2(z);
-% xf = fft2(x);
-% kxxf = sum(xf .* conj(xf), 3) / numel(xf(:,:,:,1));
-% alphaf = yf ./ (kxxf + lambda);
-% kzf = sum(xf .* conj(zf), 3) / numel(xf(:,:,:,1));
-% responses = real(ifft2(alphaf .* kzf));
-% end
