@@ -2,13 +2,13 @@
 
 By Qiang Wang, Jin Gao, Junliang Xing, Mengdan Zhang, Weiming Hu
 
-#### Introduction
+### Introduction
 
 ![DCFNet](DCFNet.png)
 
 > Discriminant Correlation Filters (DCF) based methods now become a kind of dominant approach to online object tracking. The features used in these methods, however, are either based on hand-crafted features like HoGs, or convolutional features trained independently from other tasks like image classification. In this work, we present an *end-to-end lightweight* network architecture, namely **DCFNet**, to learn the convolutional features and perform the correlation tracking process simultaneously.
 
-#### Requirements: software
+## Requirements: software
 
 Requirements for MatConvNet 1.0-beta23\(see: [MatConvNet](http://www.vlfeat.org/matconvnet/install/)\)
 1. Downloading MatConvNet
@@ -24,7 +24,7 @@ Run the following command from the MATLAB command window:
 run <matconvnet>/matlab/vl_compilenn
 ```
 
-#### Tracking
+## Tracking
 
 ```
 git clone --depth=1 https://github.com/foolwood/DCFNet.git
@@ -33,7 +33,7 @@ The file `demo/demoDCFNet.m` is used to test our algorithm.
 
 To verify [**OTB**](http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html) and [**VOT**](http://www.votchallenge.net/) performance, you can simple copy `DCFNet/` into OTB toolkit and integrate `track4vot/` to VOT toolkit.
 
-#### Training
+## Training
 
 1.Download the training data.
 
@@ -57,17 +57,18 @@ data
 
 You can choose the network architecture by setting `opts.networkType = 21`(This parameter is 21 by default)
 
-#### Results on OTB and VOT2015
+## Results on OTB and VOT2015
+
 **AUC on OTB2013 and OTB2015(OPE)**
 
 ![otb_result](otb_result.png)
 
 **VOT2015 EAO result**
 
-![vot2015](vot2015_result.png)
+![vot2015](EAO_RANK2015.png)
 
 #### Citing DCFNet
-If you find DCFNet useful in your research, please consider citing:
+If you find [**DCFNet**](https://arxiv.org/pdf/1704.04057.pdf) useful in your research, please consider citing:
 
 ```
 @article{wang17dcfnet,

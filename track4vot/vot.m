@@ -92,22 +92,9 @@ function [handle, image, region] = tracker_initialize(format)
     switch handle.format
         case 'rectangle'
             if strcmp(format, 'polygon')
-%                 x = region(1:2:end);
-%                 y = region(2:2:end);
-%                 region = [min(x), min(y), max(x) - min(x), max(y) - min(y)];
-                
-                cx = mean(region(1:2:end));
-                cy = mean(region(2:2:end));
-                x1 = min(region(1:2:end));
-                x2 = max(region(1:2:end));
-                y1 = min(region(2:2:end));
-                y2 = max(region(2:2:end));
-                A1 = norm(region(1:2) - region(3:4)) * norm(region(3:4) - region(5:6));
-                A2 = (x2 - x1) * (y2 - y1);
-                s = sqrt(A1/A2);
-                w = s * (x2 - x1) + 1;
-                h = s * (y2 - y1) + 1;
-                region = [cx-w/2,cy-h/2,w,h];
+                x = region(1:2:end);
+                y = region(2:2:end);
+                region = [min(x), min(y), max(x) - min(x), max(y) - min(y)];
             end;
         case 'polygon'
             if strcmp(format, 'rectangle')
