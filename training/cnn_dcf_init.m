@@ -50,7 +50,7 @@ elseif networkType == 3
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [1 1 3 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [1 1 32 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -77,7 +77,7 @@ elseif networkType == 4
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [1 1 3 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [1 1 32 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -112,7 +112,7 @@ elseif networkType == 5
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [1 1 3 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [1 1 32 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -185,7 +185,7 @@ elseif networkType == 8
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [3 3 3 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [3 3 32 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -212,7 +212,7 @@ elseif networkType == 9
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [3 3 3 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [3 3 32 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -247,7 +247,7 @@ elseif networkType == 10
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [3 3 3 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [3 3 32 32], 'pad', 1, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -320,7 +320,7 @@ elseif networkType == 13
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [3 3 3 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [3 3 32 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -347,7 +347,7 @@ elseif networkType == 14
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [3 3 3 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [3 3 32 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
@@ -382,7 +382,7 @@ elseif networkType == 15
     net.addLayer('conv1', conv1, {'target'}, {'conv1'}, {'conv1f', 'conv1b'}) ;
     net.addLayer('relu1', dagnn.ReLU(), {'conv1'}, {'conv1x'});
     
-    conv2 = dagnn.Conv('size', [3 3 3 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
+    conv2 = dagnn.Conv('size', [3 3 32 32], 'pad', 0, 'stride', 1, 'dilate', 1, 'hasBias', true) ;
     net.addLayer('conv2', conv2, {'conv1x'}, {'conv2'}, {'conv2f', 'conv2b'}) ;
     net.addLayer('relu2', dagnn.ReLU(), {'conv2'}, {'conv2x'});
     
