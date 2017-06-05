@@ -7,7 +7,7 @@ if nargin < 4
     param = {};
 end
 vl_setupnn();
-im = vl_imreadjpeg(img_files);
+im = vl_imreadjpeg(img_files,'numThreads', 12);
 tic;
 param.lambda = 1e-4;
 [state, ~] = DCFNet_initialize(im{1}, init_rect, param);
@@ -21,9 +21,8 @@ res.res = result;
 res.fps = num_frame / time;
 end
 
-
 function [state, location] = DCFNet_initialize(I, region, param)
-state.gpu = false;
+state.gpu = true;
 state.visual = false;
 
 state.lambda = 1e-4;
@@ -36,11 +35,12 @@ state.scale_step = 1.03;
 state.min_scale_factor = 0.2;
 state.max_scale_factor = 5;
 state.scale_penalty = 0.9925;
-state.net_name = './DCFNet-dataset-3-net-21-loss-1-epoch-50';
+state.net = [];
+state.model_path = './';
+state.net_name = 'DCFNet-dataset-3-net-21-loss-1-epoch-50';
 state = vl_argparse(state, param);
 
-net_name = [state.net_name,'.mat'];
-net = load(net_name);
+net = load(fullfile(state.model_path,state.net_name));
 net = vl_simplenn_tidy(net.net);
 state.net = net;
 
@@ -71,7 +71,8 @@ end
 state.pos = region([2,1])+region([4,3])/2;
 state.target_sz = region([4,3])';
 state.min_sz = max(4,state.min_scale_factor.*state.target_sz);
-state.max_sz = state.max_scale_factor.*state.target_sz;
+[im_h,im_w,~] = size(I);
+state.max_sz = min([im_h;im_w],state.max_scale_factor.*state.target_sz);
 
 window_sz = state.target_sz*(1+state.padding);
 patch = imcrop_multiscale(I, state.pos, window_sz, state.net_input_size, state.yyxx);
@@ -106,15 +107,18 @@ kzf = sum(bsxfun(@times, zf, conj(state.model_xf)),3)/state.numel_xf;
 
 response = squeeze(real(ifft2(bsxfun(@times, state.model_alphaf, kzf))));
 [max_response, max_index] = max(reshape(response,[],state.num_scale));
-max_response = max_response.*state.scale_penalties;
-scale_delta = find(max_response == max(max_response),1,'last');
+max_response = gather(max_response);
+max_index = gather(max_index);
+% max_response = max_response.*state.scale_penalty;
+% scale_delta = find(max_response == max(max_response),1,'last');
+[~,scale_delta] = max(max_response.*state.scale_penalty);
 [vert_delta, horiz_delta] = ind2sub(state.net_input_size, max_index(scale_delta));
 
-if vert_delta > size(response,1) / 2  %wrap around to negative half-space of vertical axis
-    vert_delta = vert_delta - size(response,1);
+if vert_delta > state.net_input_size(1) / 2  %wrap around to negative half-space of vertical axis
+    vert_delta = vert_delta - state.net_input_size(1);
 end
-if horiz_delta > size(response,2) / 2  %same for horizontal axis
-    horiz_delta = horiz_delta - size(response,2);
+if horiz_delta > state.net_input_size(2) / 2  %same for horizontal axis
+    horiz_delta = horiz_delta - state.net_input_size(2);
 end
 window_sz = window_sz(:,scale_delta);
 state.pos = state.pos + [vert_delta - 1, horiz_delta - 1].*...
@@ -126,7 +130,7 @@ target = bsxfun(@minus, patch, state.net_average_image);
 
 res = vl_simplenn(state.net, target);
 xf = fft2(bsxfun(@times, res(end).x, state.cos_window));
-kf = sum(xf .* conj(xf), 3) / numel(xf);
+kf = sum(xf .* conj(xf), 3) / state.numel_xf;
 alphaf = state.yf ./ (kf + state.lambda);   %equation for fast training
 
 state.model_alphaf = (1 - state.interp_factor) * state.model_alphaf + state.interp_factor * alphaf;
@@ -142,9 +146,7 @@ if state.visual
     rectangle('Position',location,'EdgeColor','g');
     drawnow;
 end
-
 end
-
 
 function im_show_add_response(im,response)
 sz = size(response);
