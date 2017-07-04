@@ -59,6 +59,12 @@ You can choose the network architecture by setting `opts.networkType = 21`(This 
 
 ## Results on OTB and VOT2015
 
+​:high_brightness:  ** Raw Results** :high_brightness: 
+
+[Raw result files for the OTB and VOT2015 datasets.](DCFNet_result.zip)
+
+
+
 **AUC on OTB2013 and OTB2015(OPE)**
 
 ![otb_result](otb_result.png)
@@ -67,7 +73,10 @@ You can choose the network architecture by setting `opts.networkType = 21`(This 
 
 ![vot2015](EAO_RANK2015.png)
 
-#### Citing DCFNet
+
+
+## Citing DCFNet
+
 If you find [**DCFNet**](https://arxiv.org/pdf/1704.04057.pdf) useful in your research, please consider citing:
 
 ```

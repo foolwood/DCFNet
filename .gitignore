@@ -3,8 +3,6 @@
 *.xltd
 data/train2014.zip.xltd.cfg
 
-*.zip
-
 *.label
 
 *.value
