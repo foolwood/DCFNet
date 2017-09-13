@@ -4,16 +4,29 @@ By Qiang Wang, Jin Gao, Junliang Xing, Mengdan Zhang, Weiming Hu
 
 ### Introduction
 
-![DCFNet](DCFNet.png)
+![DCFNet](result/DCFNet.png)
 
 > Discriminant Correlation Filters (DCF) based methods now become a kind of dominant approach to online object tracking. The features used in these methods, however, are either based on hand-crafted features like HoGs, or convolutional features trained independently from other tasks like image classification. In this work, we present an *end-to-end lightweight* network architecture, namely **DCFNet**, to learn the convolutional features and perform the correlation tracking process simultaneously.
 
-## Requirements: software
+## Contents
+1. [Requirements](#Requirements)
+2. [Tracking](#Tracking)
+3. [Training](#Training)
+4. [Results](#Results)
+5. [Citation](#Citing DCFNet)
 
-Requirements for MatConvNet 1.0-beta23\(see: [MatConvNet](http://www.vlfeat.org/matconvnet/install/)\)
+## Requirements
+
+```
+git clone --depth=1 https://github.com/foolwood/DCFNet.git
+```
+
+Requirements for MatConvNet 1.0-beta24 \(see: [MatConvNet](http://www.vlfeat.org/matconvnet/install/)\)
+
 1. Downloading MatConvNet
 
 ```
+cd <DCFNet>
 git clone https://github.com/vlfeat/matconvnet.git
 ```
 
@@ -21,59 +34,51 @@ git clone https://github.com/vlfeat/matconvnet.git
 
 Run the following command from the MATLAB command window:
 ```
-run <matconvnet>/matlab/vl_compilenn
+cd matconvnet
+run matlab/vl_compilenn
 ```
+
+[Optional]
+
+ If you want to reproduce the speed in our paper, please follow the [website](http://www.vlfeat.org/matconvnet/install/) to compile the **GPU** version.
 
 ## Tracking
 
-```
-git clone --depth=1 https://github.com/foolwood/DCFNet.git
-```
 The file `demo/demoDCFNet.m` is used to test our algorithm.
 
-To verify [**OTB**](http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html) and [**VOT**](http://www.votchallenge.net/) performance, you can simple copy `DCFNet/` into OTB toolkit and integrate `track4vot/` to VOT toolkit.
+To reproduce the performance on [**OTB**](http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html) , you can simple copy `DCFNet/` into OTB toolkit.
+
+[Note] Configure MatConvNet path in `tracking_env.m`
 
 ## Training
 
-1.Download the training data.
+1.Download the training data. ([**VID**](data))
 
-**TColor-128**:[[LINK](http://www.dabi.temple.edu/~hbling/data/TColor-128/Temple-color-128.zip)]
+2.Data Preprocessing in MATLAB.
 
-**UAV123**: [[GoogleDrive](https://goo.gl/iQf0Y7)]
-
-**NUS_PRO**:[GoogleDrive] ([part1](https://drive.google.com/drive/folders/0B6eYf2Rj8c79Smk4Q1BxU1ROS28))([part2](https://drive.google.com/folderview?id=0BwFzRq8t3gu5VWFRNGp5dlBkSU0&usp=sharing))]
-
-It should have this basic structure
-
-```
-data
-    |-- NUS_PRO
-    |-- Temple-color-128
-    |-- UAV123
+```matlab
+cd training/dataPreprocessing
+data_preprocessing();
+analyze_data();
 ```
 
-2.Run `training/train_cnn_dcf.m` to train a model.
+3.Train a DCFNet model.
 
+```
+train_DCFNet();
+```
 
-You can choose the network architecture by setting `opts.networkType = 21`(This parameter is 21 by default)
+## Results
 
-## Results on OTB and VOT2015
+**DCFNet** obtains a significant improvements by
 
-​:high_brightness:  ** Raw Results** :high_brightness: 
+- Good Training dataset. (TC128+UAV123+NUS_PRO -> VID)
+- Good learning policy. (constant 1e-5  ->  logspace(-2,-5,50))
+- Large padding size. (1.5  -> 2.0)
 
-[Raw result files for the OTB and VOT2015 datasets.](DCFNet_result.zip)
+The OPE/TRE/SRE results on OTB [BaiduYun](http://pan.baidu.com/s/1boKcXkF) or [GoogleDrive](https://drive.google.com/open?id=0BwWEXCnRCqJ-SHNaYUJwaW81R1E).
 
-
-
-**AUC on OTB2013 and OTB2015(OPE)**
-
-![otb_result](otb_result.png)
-
-**VOT2015 EAO result**
-
-![vot2015](EAO_RANK2015.png)
-
-
+![result on OTB](result/OTB.png)
 
 ## Citing DCFNet
 

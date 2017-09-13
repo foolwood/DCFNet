@@ -3,8 +3,7 @@ input = 'target';
 output = 'x';
 simple_net = [];
 simple_net.layers = [];
-simple_net.meta.normalization.imageSize = [125,125,3];
-simple_net.meta.normalization.averageImage = reshape(single([123,117,104]),[1,1,3]);
+simple_net.meta = net.meta;
 
 while ~strcmp(input,output)
     for i = 1:numel(net.layers)

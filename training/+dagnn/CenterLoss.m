@@ -1,7 +1,7 @@
 classdef CenterLoss < dagnn.Loss
     
     properties
-        win_size = [125,125];
+        win_size = [169,169];
     end
     
     methods

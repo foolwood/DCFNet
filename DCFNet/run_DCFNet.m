@@ -1,18 +1,33 @@
-function res = run_DCFNet(subS, rp, bSaveImage, param)
-init_rect = subS.init_rect;
-img_files = subS.s_frames;
-num_frame = numel(img_files);
-result = repmat(init_rect,[num_frame, 1]);
-if nargin < 4
-    param = {};
-end
-vl_setupnn();
-im = vl_imreadjpeg(img_files,'numThreads', 12);
+function res = run_DCFNet(subS, rp, bSaveImage, varargin)
+
+tracking_env();
+cur_path = fileparts(mfilename('fullpath'));
+net_file = 'DCFNet-net-7-125-2.mat';
+net = load(fullfile(cur_path, net_file));
+net = vl_simplenn_tidy(net.net);
+
+param = [];
+param.gpu = true;
+param.visual = false;
+param.net = net;
+param.interp_factor = net.meta.interp_factor;
+param.scale_penalty = net.meta.scale_penalty;
+param.scale_step = net.meta.scale_step;
+param.padding = net.meta.padding;
+param = vl_argparse(param, varargin) ;
+
 tic;
-param.lambda = 1e-4;
+init_rect = subS.init_rect; %1-index
+im = vl_imreadjpeg(subS.s_frames, 'numThreads', 12);
+
+num_frame = numel(im);
+result = repmat(init_rect, [num_frame, 1]);
+
+init_rect(1:2) = init_rect(1:2)-1; %0-index
 [state, ~] = DCFNet_initialize(im{1}, init_rect, param);
 for frame = 2:num_frame
-    [state, region] = DCFNet_update(state, im{frame});
+    [state, region] = DCFNet_update(state,im{frame});
+    region(1:2) = region(1:2)+1; %1-index
     result(frame,:) = region;
 end
 time = toc;
@@ -26,23 +41,17 @@ state.gpu = true;
 state.visual = false;
 
 state.lambda = 1e-4;
-state.padding = 1.5;
+state.padding = 2.0;
 state.output_sigma_factor = 0.1;
-state.interp_factor = 0.002;
+state.interp_factor = 0.01;
 
 state.num_scale = 3;
-state.scale_step = 1.03;
+state.scale_step = 1.0275;
 state.min_scale_factor = 0.2;
 state.max_scale_factor = 5;
 state.scale_penalty = 0.9925;
 state.net = [];
-state.model_path = './';
-state.net_name = 'DCFNet-dataset-3-net-21-loss-1-epoch-50';
 state = vl_argparse(state, param);
-
-net = load(fullfile(state.model_path,state.net_name));
-net = vl_simplenn_tidy(net.net);
-state.net = net;
 
 state.scale_factor = state.scale_step.^((1:state.num_scale)-ceil(state.num_scale/2));
 state.scale_penalties = ones(1,state.num_scale);
@@ -79,7 +88,8 @@ patch = imcrop_multiscale(I, state.pos, window_sz, state.net_input_size, state.y
 target = bsxfun(@minus, patch, state.net_average_image);
 res = vl_simplenn(state.net, target);
 
-xf = fft2(bsxfun(@times, res(end).x, state.cos_window));
+x = bsxfun(@times, res(end).x, state.cos_window);
+xf = fft2(x);
 state.numel_xf = numel(xf);
 kf = sum(xf.*conj(xf),3)/state.numel_xf;
 state.model_alphaf = state.yf ./ (kf + state.lambda);
@@ -87,10 +97,7 @@ state.model_xf = xf;
 
 location = region;
 if state.visual
-    subplot(1,2,1);imshow(uint8(patch));
-    subplot(1,2,2);imshow(uint8(I));
-    rectangle('Position',location,'EdgeColor','g');
-    drawnow;
+    state.videoPlayer = vision.VideoPlayer('Position', [100 100 [size(I,2), size(I,1)]+30]);
 end
 
 end
@@ -102,16 +109,15 @@ patch_crop = imcrop_multiscale(I, state.pos, window_sz, state.net_input_size, st
 search = bsxfun(@minus, patch_crop, state.net_average_image);
 res = vl_simplenn(state.net, search);
 
-zf = fft2(bsxfun(@times, res(end).x, state.cos_window));
+z = bsxfun(@times, res(end).x, state.cos_window);
+zf = fft2(z);
 kzf = sum(bsxfun(@times, zf, conj(state.model_xf)),3)/state.numel_xf;
 
 response = squeeze(real(ifft2(bsxfun(@times, state.model_alphaf, kzf))));
 [max_response, max_index] = max(reshape(response,[],state.num_scale));
 max_response = gather(max_response);
 max_index = gather(max_index);
-% max_response = max_response.*state.scale_penalty;
-% scale_delta = find(max_response == max(max_response),1,'last');
-[~,scale_delta] = max(max_response.*state.scale_penalty);
+[~,scale_delta] = max(max_response.*state.scale_penalties);
 [vert_delta, horiz_delta] = ind2sub(state.net_input_size, max_index(scale_delta));
 
 if vert_delta > state.net_input_size(1) / 2  %wrap around to negative half-space of vertical axis
@@ -129,7 +135,8 @@ patch = imcrop_multiscale(I, state.pos, window_sz, state.net_input_size, state.y
 target = bsxfun(@minus, patch, state.net_average_image);
 
 res = vl_simplenn(state.net, target);
-xf = fft2(bsxfun(@times, res(end).x, state.cos_window));
+x = bsxfun(@times, res(end).x, state.cos_window);
+xf = fft2(x);
 kf = sum(xf .* conj(xf), 3) / state.numel_xf;
 alphaf = state.yf ./ (kf + state.lambda);   %equation for fast training
 
@@ -141,20 +148,10 @@ box = [state.pos([2,1]) - state.target_sz([2,1])'/2, state.target_sz([2,1])'];
 location = double(gather(box));
 
 if state.visual
-    subplot(1,2,1);im_show_add_response(patch_crop(:,:,:,scale_delta), response(:,:,scale_delta));
-    subplot(1,2,2);imshow(uint8(I));
-    rectangle('Position',location,'EdgeColor','g');
-    drawnow;
-end
+    im_show = insertShape(uint8(gather(I)), 'Rectangle', location, 'LineWidth', 4, 'Color', 'yellow');
+    step(state.videoPlayer, im_show);
 end
 
-function im_show_add_response(im,response)
-sz = size(response);
-response = circshift(response, floor(sz(1:2) / 2) - 1);
-
-imshow(uint8(gather(im)));hold on;
-h = imagesc(response);colormap(jet);
-set(h,'AlphaData',gather(response)+0.6);
 end
 
 function labels = gaussian_shaped_labels(sigma, sz)
