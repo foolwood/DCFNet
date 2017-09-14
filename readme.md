@@ -1,4 +1,4 @@
-### DCFNET: DISCRIMINANT CORRELATION FILTERS NETWORK FOR VISUAL TRACKING
+### DCFNET: DISCRIMINANT CORRELATION FILTERS NETWORK FOR VISUAL TRACKING<sub>([arXiv](https://arxiv.org/pdf/1704.04057.pdf))</sub>
 
 By Qiang Wang, Jin Gao, Junliang Xing, Mengdan Zhang, Weiming Hu
 
@@ -9,11 +9,11 @@ By Qiang Wang, Jin Gao, Junliang Xing, Mengdan Zhang, Weiming Hu
 > Discriminant Correlation Filters (DCF) based methods now become a kind of dominant approach to online object tracking. The features used in these methods, however, are either based on hand-crafted features like HoGs, or convolutional features trained independently from other tasks like image classification. In this work, we present an *end-to-end lightweight* network architecture, namely **DCFNet**, to learn the convolutional features and perform the correlation tracking process simultaneously.
 
 ## Contents
-1. [Requirements](#Requirements)
-2. [Tracking](#Tracking)
-3. [Training](#Training)
-4. [Results](#Results)
-5. [Citation](#Citing DCFNet)
+1. [Requirements](#requirements)
+2. [Tracking](#tracking)
+3. [Training](#training)
+4. [Results](#results)
+5. [Citation](#citing-dcfnet)
 
 ## Requirements
 
@@ -38,7 +38,7 @@ cd matconvnet
 run matlab/vl_compilenn
 ```
 
-[Optional]
+[**Optional**]
 
  If you want to reproduce the speed in our paper, please follow the [website](http://www.vlfeat.org/matconvnet/install/) to compile the **GPU** version.
 
@@ -48,7 +48,7 @@ The file `demo/demoDCFNet.m` is used to test our algorithm.
 
 To reproduce the performance on [**OTB**](http://cvlab.hanyang.ac.kr/tracker_benchmark/index.html) , you can simple copy `DCFNet/` into OTB toolkit.
 
-[Note] Configure MatConvNet path in `tracking_env.m`
+[**Note**] Configure MatConvNet path in `tracking_env.m`
 
 ## Training
 
